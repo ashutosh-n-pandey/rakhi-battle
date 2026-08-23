@@ -1,0 +1,116 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { courtQuestionKeys, questions } from '../../lib/game';
+import { db, getChallenge } from '../../lib/server';
+
+const id = Astro.params.id ?? '';
+const challenge = await getChallenge(id);
+if (!challenge || challenge.status !== 'complete' || !challenge.sibling_name) return Astro.redirect('/?invalid=1');
+const rows = await db().prepare('SELECT votes_json FROM court_votes WHERE challenge_id = ?').bind(id).all<{ votes_json: string }>();
+const courtQuestions = courtQuestionKeys.map((key) => questions.find((q) => q.key === key)!);
+---
+<Layout
+  title={`Family Court: ${challenge.creator_name} vs ${challenge.sibling_name}`}
+  description={`Vote now: who is more dramatic, more kanjoos and mummy's favourite?`}
+  noindex
+>
+  <div class="shell">
+    <section class="hero" style="padding-top:22px">
+      <p class="eyebrow">Family Court is in session</p>
+      <h1>{challenge.creator_name} <span>vs {challenge.sibling_name}</span></h1>
+      <p class="hero-copy">They disagree. Your vote is now evidence.</p>
+    </section>
+
+    <section class="card" data-court data-id={id} data-creator={challenge.creator_name} data-sibling={challenge.sibling_name}>
+      <div data-vote-screen>
+        {courtQuestions.map((question) => (
+          <div data-vote-question={question.key}>
+            <p class="eyebrow">{question.emoji} {question.short}</p>
+            <h3 style="font-size:1.45rem">{question.prompt}</h3>
+            <div class="court-vote">
+              <button type="button" data-value="creator">{challenge.creator_name}</button>
+              <button type="button" data-value="sibling">{challenge.sibling_name}</button>
+              <button type="button" data-value="both" style="grid-column:1/-1">Both / diplomatic answer</button>
+            </div>
+          </div>
+        ))}
+        <button class="btn btn-primary btn-block" data-submit-vote disabled>Submit verdict</button>
+        <p class="status error" data-court-status></p>
+      </div>
+      <div class="hidden" data-results-screen>
+        <p class="eyebrow">Current public verdict</p>
+        <h2 data-vote-count>{rows.results.length} family votes</h2>
+        <div data-bars></div>
+        <a class="btn btn-gold btn-block" href="/?ref=family_court" data-court-new>Start your own Rakhi Battle</a>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<script>
+  import { courtQuestionKeys, questions, type AnswerId } from '../../lib/game';
+  const root = document.querySelector<HTMLElement>('[data-court]')!;
+  {
+    const id = root.dataset.id!;
+    const creator = root.dataset.creator!;
+    const sibling = root.dataset.sibling!;
+    const votes: Partial<Record<(typeof courtQuestionKeys)[number], AnswerId>> = {};
+    const submit = root.querySelector<HTMLButtonElement>('[data-submit-vote]')!;
+    const status = root.querySelector<HTMLElement>('[data-court-status]')!;
+
+    root.querySelectorAll<HTMLElement>('[data-vote-question]').forEach((section) => {
+      const key = section.dataset.voteQuestion as (typeof courtQuestionKeys)[number];
+      section.querySelectorAll<HTMLButtonElement>('button[data-value]').forEach((button) => button.addEventListener('click', () => {
+        section.querySelectorAll('button').forEach((item) => item.classList.remove('selected'));
+        button.classList.add('selected');
+        votes[key] = button.dataset.value as AnswerId;
+        submit.disabled = Object.keys(votes).length !== courtQuestionKeys.length;
+      }));
+    });
+
+    async function showResults() {
+      const response = await fetch(`/api/courts/${id}`);
+      const data = await response.json() as {
+        vote_count: number;
+        totals: Record<string, Record<'creator' | 'sibling' | 'both', number>>;
+      };
+      root.querySelector('[data-vote-screen]')?.classList.add('hidden');
+      root.querySelector('[data-results-screen]')?.classList.remove('hidden');
+      root.querySelector<HTMLElement>('[data-vote-count]')!.textContent = `${data.vote_count} family vote${data.vote_count === 1 ? '' : 's'}`;
+      const bars = root.querySelector<HTMLElement>('[data-bars]')!;
+      bars.replaceChildren();
+      courtQuestionKeys.forEach((key) => {
+        const question = questions.find((item) => item.key === key)!;
+        const totals = data.totals[key];
+        const winner = Object.entries(totals).sort((a, b) => Number(b[1]) - Number(a[1]))[0];
+        const label = winner[0] === 'creator' ? creator : winner[0] === 'sibling' ? sibling : 'Both';
+        const total = Object.values(totals).reduce((sum: number, value) => sum + Number(value), 0);
+        const percent = total ? Math.round((Number(winner[1]) / total) * 100) : 0;
+        const row = document.createElement('div');
+        row.className = 'bar-row';
+        row.innerHTML = `<div class="bar-head"><span>${question.short}: ${label}</span><span>${percent}%</span></div><div class="bar"><i style="width:${percent}%"></i></div>`;
+        bars.appendChild(row);
+      });
+    }
+
+    submit.addEventListener('click', async () => {
+      submit.disabled = true;
+      status.textContent = '';
+      const response = await fetch(`/api/courts/${id}`, {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ votes, session_id: window.rakhiSession, source: window.rakhiAttribution?.source || 'court' }),
+      });
+      const data = await response.json() as { error?: string };
+      if (!response.ok) {
+        status.textContent = data.error || 'Vote failed.';
+        if (response.status === 409) await showResults();
+        else submit.disabled = false;
+        return;
+      }
+      window.rakhiTrack('family_court_vote', {}, id);
+      await showResults();
+    });
+
+    root.querySelector('[data-court-new]')?.addEventListener('click', () => window.rakhiTrack('new_battle_from_vote', {}, id));
+  }
+</script>

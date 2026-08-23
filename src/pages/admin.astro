@@ -1,0 +1,51 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Rakhi Battle operator dashboard" noindex>
+  <div class="shell wide-shell">
+    <p class="eyebrow">Operator dashboard</p>
+    <h1>KEEP / CHANGE / SCALE / KILL</h1>
+    <section class="card" style="margin-top:24px">
+      <form data-admin-form>
+        <label for="token"><b>Admin token</b></label>
+        <div class="share-link"><input id="token" type="password" autocomplete="current-password" placeholder="Stored only for this tab" /><button class="btn btn-primary">Load funnel</button></div>
+      </form>
+      <p class="status error" data-admin-status></p>
+      <div class="hidden" data-dashboard>
+        <div class="result-grid" data-kpis></div>
+        <h3 style="margin-top:24px">Funnel events</h3>
+        <div data-events></div>
+        <h3 style="margin-top:24px">Acquisition sources</h3>
+        <div data-sources></div>
+      </div>
+    </section>
+  </div>
+</Layout>
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-admin-form]');
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const token = form.querySelector<HTMLInputElement>('input')!.value;
+    const status = document.querySelector<HTMLElement>('[data-admin-status]')!;
+    const response = await fetch('/api/admin/stats', { headers: { 'x-admin-token': token } });
+    const data = await response.json() as {
+      error?: string;
+      totals?: { battles?: number; completed?: number; avg_score?: number };
+      purchases?: { revenue_paise?: number };
+      events: Array<{ event_name: string; count: number; users: number }>;
+      sources: Array<{ source: string; completed: number; battles: number }>;
+    };
+    if (!response.ok) { status.textContent = data.error || 'Unauthorized.'; return; }
+    status.textContent = '';
+    document.querySelector('[data-dashboard]')?.classList.remove('hidden');
+    const money = ((data.purchases?.revenue_paise || 0) / 100).toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
+    document.querySelector<HTMLElement>('[data-kpis]')!.innerHTML = [
+      ['Battles', data.totals?.battles || 0],
+      ['Completed pairs', data.totals?.completed || 0],
+      ['Average match', `${Math.round(data.totals?.avg_score || 0)}%`],
+      ['Revenue', money],
+    ].map(([label, value]) => `<div class="result-item"><span>${label}</span><strong>${value}</strong></div>`).join('');
+    document.querySelector<HTMLElement>('[data-events]')!.innerHTML = data.events.map((row) => `<div class="bar-row"><div class="bar-head"><span>${row.event_name}</span><span>${row.count} events / ${row.users} users</span></div></div>`).join('');
+    document.querySelector<HTMLElement>('[data-sources]')!.innerHTML = data.sources.map((row) => `<div class="bar-row"><div class="bar-head"><span>${row.source}</span><span>${row.completed}/${row.battles} complete</span></div></div>`).join('');
+  });
+</script>

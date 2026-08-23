@@ -1,0 +1,181 @@
+---
+import type { Role } from '../lib/game';
+
+interface Props {
+  role: Role;
+  challengeId?: string;
+  creatorName?: string;
+}
+
+const { role, challengeId = '', creatorName = '' } = Astro.props;
+---
+<section class="game-wrap" data-quiz data-role={role} data-challenge={challengeId} data-creator={creatorName}>
+  <div class="progress-meta hidden" data-progress-meta>
+    <span data-progress-label>Question 1 of 8</span><span>~60 sec</span>
+  </div>
+  <div class="progress hidden" data-progress><span></span></div>
+
+  <div class="card name-screen" data-name-screen>
+    <p class="eyebrow">{role === 'creator' ? 'Create your battle' : `${creatorName} challenged you`}</p>
+    <h2>{role === 'creator' ? 'What should we call you?' : 'Brave enough to answer?'}</h2>
+    <p class="muted">Only a nickname. No phone number, email or signup.</p>
+    <form data-name-form>
+      <input data-name maxlength="24" autocomplete="nickname" placeholder={role === 'creator' ? 'Your nickname' : 'Your nickname'} required />
+      <button class="btn btn-primary btn-block" type="submit">
+        {role === 'creator' ? 'Start the battle →' : 'Accept challenge →'}
+      </button>
+    </form>
+  </div>
+
+  <div class="card hidden" data-question-screen aria-live="polite">
+    <div class="question-emoji" data-emoji></div>
+    <h2 class="question-title" data-question></h2>
+    <div class="options" data-options></div>
+  </div>
+
+  <div class="card share-box hidden" data-share-screen>
+    <p class="eyebrow">Battle created</p>
+    <h2>Now send it to your sibling 😏</h2>
+    <p class="muted">Your result unlocks after they finish all 8 questions.</p>
+    <div class="share-link">
+      <input data-share-url readonly aria-label="Challenge link" />
+      <button class="btn btn-ghost" data-copy type="button">Copy</button>
+    </div>
+    <div class="share-actions">
+      <button class="btn btn-primary" data-whatsapp type="button">WhatsApp</button>
+      <button class="btn btn-gold" data-native-share type="button">Share</button>
+    </div>
+    <p class="status" data-status></p>
+  </div>
+
+  <p class="status error" data-error aria-live="assertive"></p>
+</section>
+
+<script>
+  import { questions, type Answers, type Role } from '../lib/game';
+
+  const root = document.querySelector<HTMLElement>('[data-quiz]')!;
+  {
+    const role = root.dataset.role as Role;
+    const challengeId = root.dataset.challenge || '';
+    const nameScreen = root.querySelector<HTMLElement>('[data-name-screen]')!;
+    const nameForm = root.querySelector<HTMLFormElement>('[data-name-form]')!;
+    const nameInput = root.querySelector<HTMLInputElement>('[data-name]')!;
+    const questionScreen = root.querySelector<HTMLElement>('[data-question-screen]')!;
+    const progress = root.querySelector<HTMLElement>('[data-progress]')!;
+    const progressMeta = root.querySelector<HTMLElement>('[data-progress-meta]')!;
+    const progressBar = progress.querySelector<HTMLElement>('span')!;
+    const progressLabel = root.querySelector<HTMLElement>('[data-progress-label]')!;
+    const emoji = root.querySelector<HTMLElement>('[data-emoji]')!;
+    const title = root.querySelector<HTMLElement>('[data-question]')!;
+    const options = root.querySelector<HTMLElement>('[data-options]')!;
+    const shareScreen = root.querySelector<HTMLElement>('[data-share-screen]')!;
+    const error = root.querySelector<HTMLElement>('[data-error]')!;
+    const answers: Answers = {};
+    let playerName = '';
+    let index = 0;
+    let busy = false;
+
+    function showQuestion() {
+      const question = questions[index];
+      progressBar.style.width = `${((index + 1) / questions.length) * 100}%`;
+      progressLabel.textContent = `Question ${index + 1} of ${questions.length}`;
+      emoji.textContent = question.emoji;
+      title.textContent = question.prompt;
+      options.replaceChildren();
+      question.options.forEach((option) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'option';
+        button.textContent = option[role];
+        button.addEventListener('click', () => {
+          if (busy) return;
+          busy = true;
+          button.classList.add('selected');
+          answers[question.key] = option.id;
+          setTimeout(async () => {
+            index += 1;
+            if (index < questions.length) {
+              busy = false;
+              showQuestion();
+            } else {
+              await finish();
+            }
+          }, 150);
+        });
+        options.appendChild(button);
+      });
+    }
+
+    async function finish() {
+      error.textContent = '';
+      try {
+        const attr = window.rakhiAttribution || { source: 'direct' };
+        const endpoint = role === 'creator' ? '/api/challenges' : `/api/challenges/${challengeId}/complete`;
+        const payload = role === 'creator'
+          ? { creator_name: playerName, answers, ...attr }
+          : { sibling_name: playerName, answers, session_id: window.rakhiSession, ...attr };
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await response.json() as { error?: string; id: string; result: { percent: number } };
+        if (!response.ok) throw new Error(data.error || 'Something went wrong');
+        if (role === 'creator') {
+          window.rakhiTrack('battle_creator_complete', {}, data.id);
+          const shareUrl = new URL(`/battle/${data.id}`, location.origin);
+          shareUrl.searchParams.set('utm_source', 'whatsapp');
+          shareUrl.searchParams.set('utm_medium', 'challenge');
+          shareUrl.searchParams.set('utm_campaign', 'rakhi2026');
+          shareUrl.searchParams.set('ref', 'sibling_challenge');
+          setupShare(shareUrl.toString(), data.id);
+        } else {
+          window.rakhiTrack('challenge_complete', { score: data.result.percent }, challengeId);
+          location.href = `/result/${challengeId}?fresh=1`;
+        }
+      } catch (reason) {
+        busy = false;
+        index = Math.max(0, questions.length - 1);
+        error.textContent = reason instanceof Error ? reason.message : 'Please retry.';
+      }
+    }
+
+    function setupShare(url: string, id: string) {
+      questionScreen.classList.add('hidden');
+      progress.classList.add('hidden');
+      progressMeta.classList.add('hidden');
+      shareScreen.classList.remove('hidden');
+      const urlInput = root.querySelector<HTMLInputElement>('[data-share-url]')!;
+      const status = root.querySelector<HTMLElement>('[data-status]')!;
+      urlInput.value = url;
+      const text = `${playerName} says you don't know them that well 😏\nAccept the Rakhi Battle:`;
+      root.querySelector('[data-copy]')?.addEventListener('click', async () => {
+        await navigator.clipboard.writeText(url);
+        status.textContent = 'Link copied.';
+        window.rakhiTrack('challenge_share_click', { channel: 'copy' }, id);
+      });
+      root.querySelector('[data-whatsapp]')?.addEventListener('click', () => {
+        window.rakhiTrack('challenge_share_click', { channel: 'whatsapp' }, id);
+        location.href = `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`;
+      });
+      root.querySelector('[data-native-share]')?.addEventListener('click', async () => {
+        window.rakhiTrack('challenge_share_click', { channel: 'native' }, id);
+        if (navigator.share) await navigator.share({ title: 'Rakhi Battle 2026', text, url });
+        else await navigator.clipboard.writeText(url);
+      });
+    }
+
+    nameForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      playerName = nameInput.value.trim().slice(0, 24);
+      if (!playerName) return;
+      nameScreen.classList.add('hidden');
+      questionScreen.classList.remove('hidden');
+      progress.classList.remove('hidden');
+      progressMeta.classList.remove('hidden');
+      window.rakhiTrack(role === 'creator' ? 'battle_start' : 'challenge_open', {}, challengeId || null);
+      showQuestion();
+    });
+  }
+</script>

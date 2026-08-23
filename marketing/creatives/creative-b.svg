@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <rect width="1080" height="1920" fill="#fff7e8"/>
+  <path d="M-80 100C220 0 360 260 660 120s480 40 520 220v310H-80Z" fill="#ffd166" opacity=".5"/>
+  <text x="540" y="130" text-anchor="middle" fill="#7d1538" font-family="Arial,sans-serif" font-size="40" font-weight="900">RAKHI BATTLE 2026</text>
+  <text x="540" y="500" text-anchor="middle" fill="#241117" font-family="Arial,sans-serif" font-size="92" font-weight="950"><tspan x="540">WHO IS</tspan><tspan x="540" dy="110">ACTUALLY</tspan><tspan x="540" dy="110" fill="#7d1538">MUMMY'S</tspan><tspan x="540" dy="110" fill="#7d1538">FAVOURITE?</tspan></text>
+  <text x="540" y="1020" text-anchor="middle" fill="#7d1538" font-family="Arial,sans-serif" font-size="46" font-weight="900">FAMILY COURT</text>
+  <rect x="82" y="1190" width="916" height="300" rx="52" fill="#7d1538"/>
+  <text x="540" y="1305" text-anchor="middle" fill="#ffd166" font-family="Arial,sans-serif" font-size="50" font-weight="900">WE LET THE FAMILY VOTE.</text>
+  <text x="540" y="1415" text-anchor="middle" fill="#fff7e8" font-family="Arial,sans-serif" font-size="42" font-weight="800">The verdict was not peaceful.</text>
+  <text x="540" y="1650" text-anchor="middle" fill="#6e5d62" font-family="Arial,sans-serif" font-size="38" font-weight="700">8 QUESTIONS • 60 SECONDS • FREE</text>
+  <rect x="82" y="1740" width="916" height="112" rx="32" fill="#ffd166"/>
+  <text x="540" y="1812" text-anchor="middle" fill="#4c0b25" font-family="Arial,sans-serif" font-size="42" font-weight="900">SETTLE YOUR FAMILY →</text>
+</svg>

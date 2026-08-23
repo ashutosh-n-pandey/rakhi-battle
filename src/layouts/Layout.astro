@@ -1,0 +1,76 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  noindex?: boolean;
+}
+
+const {
+  title = 'Rakhi Battle 2026 — Who really knows whom?',
+  description = 'You say your sibling knows you. Prove it in 60 seconds.',
+  image = '/og.svg',
+  noindex = false,
+} = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
+const imageUrl = new URL(image, Astro.site ?? Astro.url.origin);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#7d1538" />
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Rakhi Battle home">
+        <span class="brand-mark" aria-hidden="true">र</span>
+        <span>RAKHI BATTLE <b>2026</b></span>
+      </a>
+      <span class="countdown">28 AUG</span>
+    </header>
+    <main><slot /></main>
+    <footer>
+      <p>Built for sibling chaos. No accounts. No phone numbers.</p>
+      <nav><a href="/privacy">Privacy</a><a href="/terms">Terms</a></nav>
+    </footer>
+    <script is:inline>
+      (() => {
+        const key = 'rb_session';
+        const session = localStorage.getItem(key) || crypto.randomUUID();
+        localStorage.setItem(key, session);
+        const params = new URLSearchParams(location.search);
+        const saved = JSON.parse(localStorage.getItem('rb_attr') || '{}');
+        const attr = {
+          source: params.get('ref') || params.get('utm_source') || saved.source || 'direct',
+          utm_source: params.get('utm_source') || saved.utm_source || null,
+          utm_medium: params.get('utm_medium') || saved.utm_medium || null,
+          utm_campaign: params.get('utm_campaign') || saved.utm_campaign || null,
+        };
+        localStorage.setItem('rb_attr', JSON.stringify(attr));
+        window.rakhiSession = session;
+        window.rakhiAttribution = attr;
+        window.rakhiTrack = (event, payload = {}, challenge_id = null) => {
+          const body = JSON.stringify({ event, session_id: session, challenge_id, ...attr, payload });
+          if (navigator.sendBeacon) navigator.sendBeacon('/api/events', new Blob([body], { type: 'application/json' }));
+          else fetch('/api/events', { method: 'POST', headers: { 'content-type': 'application/json' }, body, keepalive: true }).catch(() => {});
+        };
+      })();
+    </script>
+  </body>
+</html>

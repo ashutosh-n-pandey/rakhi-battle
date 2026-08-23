@@ -1,0 +1,22 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import QuizGame from '../../components/QuizGame.astro';
+import { getChallenge } from '../../lib/server';
+
+const id = Astro.params.id ?? '';
+const challenge = await getChallenge(id);
+if (!challenge) return Astro.redirect('/?invalid=1');
+if (challenge.status === 'complete') return Astro.redirect(`/result/${id}`);
+const title = `${challenge.creator_name} challenged you — Rakhi Battle 2026`;
+const description = `${challenge.creator_name} says you don't know them that well. Prove them wrong in 60 seconds.`;
+---
+<Layout title={title} description={description} noindex>
+  <div class="shell">
+    <section class="hero" style="padding-top: 24px">
+      <p class="eyebrow">Incoming sibling challenge</p>
+      <h1><span>{challenge.creator_name}</span> thinks you’ll lose.</h1>
+      <p class="hero-copy">8 questions. One match score. No excuses.</p>
+    </section>
+    <QuizGame role="sibling" challengeId={id} creatorName={challenge.creator_name} />
+  </div>
+</Layout>

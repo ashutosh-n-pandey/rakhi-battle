@@ -1,0 +1,285 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { displayAnswer, getWinnerName, questions, savageVerdict } from '../../lib/game';
+import { getChallenge, paidTier, parseAnswers, parseResult } from '../../lib/server';
+
+const id = Astro.params.id ?? '';
+const challenge = await getChallenge(id);
+if (!challenge) return Astro.redirect('/?expired=1');
+if (challenge.status !== 'complete' || !challenge.sibling_name || !challenge.result_json) return Astro.redirect(`/battle/${id}`);
+const creatorAnswers = parseAnswers(challenge.creator_answers);
+const siblingName = challenge.sibling_name;
+const result = parseResult(challenge.result_json);
+const tier = await paidTier(id);
+const winner = getWinnerName(result, challenge.creator_name, siblingName);
+const posterData = {
+  id,
+  creator: challenge.creator_name,
+  sibling: siblingName,
+  winner,
+  percent: result.percent,
+  verdict: result.verdict,
+  mummy: displayAnswer(creatorAnswers.mummy, challenge.creator_name, siblingName),
+  drama: displayAnswer(creatorAnswers.drama, challenge.creator_name, siblingName),
+  caring: displayAnswer(creatorAnswers.caring, challenge.creator_name, siblingName),
+};
+---
+<Layout
+  title={`${challenge.creator_name} vs ${siblingName}: ${result.percent}% Rakhi match`}
+  description={`${winner} wins this Rakhi Battle. Think your sibling can beat ${result.percent}%?`}
+  noindex
+>
+  <div class="shell">
+    <section class="card result-hero">
+      <p class="eyebrow">Rakhi Battle verdict</p>
+      <h2>{challenge.creator_name} <span class="muted">vs</span> {siblingName}</h2>
+      <div class="score-ring" style={`--score:${result.percent * 3.6}deg`}><strong>{result.percent}%</strong></div>
+      <span class="winner-pill">🏆 {winner} {result.winner === 'both' ? 'survive' : 'wins'}</span>
+      <h3 style="font-size:1.8rem;margin-top:18px">{result.verdict}</h3>
+      <p class="muted">{result.subline}</p>
+
+      <div class="result-grid">
+        <div class="result-item"><span>Mummy's favourite</span><strong>{posterData.mummy}</strong></div>
+        <div class="result-item"><span>Drama champion</span><strong>{posterData.drama}</strong></div>
+        <div class="result-item"><span>Secretly caring</span><strong>{posterData.caring}</strong></div>
+        <div class="result-item"><span>Agreed on</span><strong>{result.matches} / {result.total}</strong></div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:16px;text-align:center">
+      <p class="eyebrow">Your free Story poster</p>
+      <h2>Put the result on Status.</h2>
+      <p class="muted">Free, clean and designed for WhatsApp Status / Instagram Story.</p>
+      <div class="poster-preview"><canvas data-poster width="1080" height="1920"></canvas></div>
+      <div class="share-actions">
+        <button class="btn btn-primary" data-poster-share>Share poster</button>
+        <button class="btn btn-gold" data-poster-download>Download</button>
+      </div>
+      <p class="status" data-poster-status></p>
+    </section>
+
+    <a class="court-banner" style="display:block;text-decoration:none" href={`/court/${id}?ref=family_court&utm_source=family_court&utm_campaign=rakhi2026`} data-court-link>
+      <p class="eyebrow" style="color:#ffd166">Family Court</p>
+      <h3 style="font-size:1.8rem">You clearly can’t settle this yourselves.</h3>
+      <p>Bring cousins, friends and family to vote →</p>
+    </a>
+
+    <section class="card premium">
+      <p class="eyebrow">Optional upgrades</p>
+      {tier ? (
+        <>
+          <h2>{tier === 'full' ? 'Full Reveal unlocked' : 'Savage Mode unlocked'} ✨</h2>
+          <p>{savageVerdict(result, challenge.creator_name, siblingName)}</p>
+          {tier === 'full' && (
+            <div class="result-grid">
+              {questions.map((question) => (
+                <div class="result-item">
+                  <span>{question.short}</span>
+                  <strong>{displayAnswer(creatorAnswers[question.key], challenge.creator_name, siblingName)}</strong>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          <h2>How much truth can you handle?</h2>
+          <div class="premium-grid">
+            <article class="premium-tier">
+              <b>SAVAGE MODE</b><div class="price">₹49</div>
+              <p>Extra savage verdict + premium poster theme.</p>
+              <button class="btn btn-ghost btn-block" data-buy="savage">Unlock</button>
+            </article>
+            <article class="premium-tier">
+              <b>FULL REVEAL</b><div class="price">₹99</div>
+              <p>All 8 category truths + Savage Mode + certificate.</p>
+              <button class="btn btn-primary btn-block" data-buy="full">Reveal all</button>
+            </article>
+          </div>
+          <p class="status" data-pay-status></p>
+        </>
+      )}
+    </section>
+
+    <div class="action-stack" style="margin-top:16px">
+      <a class="btn btn-ghost" href="/?ref=result_replay" data-new-battle>Now make your own battle</a>
+    </div>
+  </div>
+</Layout>
+
+<script is:inline define:vars={{ posterData, id }}>
+  const canvas = document.querySelector('[data-poster]');
+  const ctx = canvas.getContext('2d');
+
+  function fitText(text, maxWidth, startSize, weight = 900) {
+    let size = startSize;
+    do {
+      ctx.font = `${weight} ${size}px Arial, sans-serif`;
+      size -= 2;
+    } while (ctx.measureText(text).width > maxWidth && size > 44);
+  }
+
+  function drawPoster() {
+    const w = canvas.width;
+    const h = canvas.height;
+    const gradient = ctx.createLinearGradient(0, 0, w, h);
+    gradient.addColorStop(0, '#4c0b25');
+    gradient.addColorStop(.58, '#7d1538');
+    gradient.addColorStop(1, '#a32950');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.globalAlpha = .12;
+    ctx.fillStyle = '#ffd166';
+    for (let y = -80; y < h; y += 210) {
+      for (let x = -80; x < w; x += 210) {
+        ctx.beginPath();
+        ctx.arc(x + ((y / 210) % 2) * 90, y, 56, 0, Math.PI * 2);
+        ctx.strokeStyle = '#ffd166';
+        ctx.lineWidth = 5;
+        ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1;
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#ffd166';
+    ctx.font = '900 58px Arial, sans-serif';
+    ctx.fillText('RAKHI BATTLE 2026', w / 2, 145);
+
+    ctx.fillStyle = '#fff7e8';
+    fitText(posterData.creator.toUpperCase(), 850, 112);
+    ctx.fillText(posterData.creator.toUpperCase(), w / 2, 365);
+    ctx.fillStyle = '#ffd166';
+    ctx.font = '900 58px Arial, sans-serif';
+    ctx.fillText('VS', w / 2, 455);
+    ctx.fillStyle = '#fff7e8';
+    fitText(posterData.sibling.toUpperCase(), 850, 112);
+    ctx.fillText(posterData.sibling.toUpperCase(), w / 2, 565);
+
+    ctx.fillStyle = '#ffd166';
+    ctx.beginPath();
+    ctx.arc(w / 2, 830, 178, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#4c0b25';
+    ctx.font = '950 126px Arial, sans-serif';
+    ctx.fillText(`${posterData.percent}%`, w / 2, 865);
+    ctx.font = '800 34px Arial, sans-serif';
+    ctx.fillText('SIBLING MATCH', w / 2, 925);
+
+    ctx.fillStyle = '#fff7e8';
+    ctx.font = '800 34px Arial, sans-serif';
+    ctx.fillText('WINNER', w / 2, 1100);
+    ctx.fillStyle = '#ffd166';
+    fitText(posterData.winner.toUpperCase(), 880, 86);
+    ctx.fillText(posterData.winner.toUpperCase(), w / 2, 1190);
+
+    const rows = [
+      ["MUMMY'S FAVOURITE", posterData.mummy],
+      ['DRAMA CHAMPION', posterData.drama],
+      ['SECRETLY CARING', posterData.caring],
+    ];
+    rows.forEach(([label, value], i) => {
+      const y = 1360 + i * 115;
+      ctx.textAlign = 'left';
+      ctx.fillStyle = 'rgba(255,247,232,.72)';
+      ctx.font = '700 29px Arial, sans-serif';
+      ctx.fillText(label, 120, y);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#fff7e8';
+      ctx.font = '900 35px Arial, sans-serif';
+      ctx.fillText(String(value).toUpperCase(), 960, y);
+      ctx.strokeStyle = 'rgba(255,209,102,.28)';
+      ctx.beginPath(); ctx.moveTo(120, y + 35); ctx.lineTo(960, y + 35); ctx.stroke();
+    });
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#ffd166';
+    ctx.font = '900 35px Arial, sans-serif';
+    ctx.fillText('THINK YOUR SIBLING CAN BEAT THIS?', w / 2, 1770);
+    ctx.fillStyle = '#fff7e8';
+    ctx.font = '800 31px Arial, sans-serif';
+    ctx.fillText(location.host.toUpperCase(), w / 2, 1825);
+  }
+
+  function posterBlob() {
+    return new Promise((resolve) => canvas.toBlob(resolve, 'image/png', .95));
+  }
+
+  drawPoster();
+  window.rakhiTrack('pair_result_view', { score: posterData.percent }, id);
+
+  document.querySelector('[data-poster-download]')?.addEventListener('click', async () => {
+    const blob = await posterBlob();
+    const link = document.createElement('a');
+    link.download = `rakhi-battle-${posterData.creator}-vs-${posterData.sibling}.png`;
+    link.href = URL.createObjectURL(blob);
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+    window.rakhiTrack('poster_download', {}, id);
+  });
+
+  document.querySelector('[data-poster-share]')?.addEventListener('click', async () => {
+    const status = document.querySelector('[data-poster-status]');
+    const blob = await posterBlob();
+    const file = new File([blob], 'rakhi-battle-2026.png', { type: 'image/png' });
+    const url = `${location.origin}/result/${id}?ref=poster`;
+    if (navigator.share && navigator.canShare?.({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'Rakhi Battle 2026', text: `Think your sibling can beat ${posterData.percent}%? ${url}` });
+      window.rakhiTrack('poster_share', { channel: 'native' }, id);
+    } else {
+      status.textContent = 'Download the poster, then add it to Status or Story.';
+      document.querySelector('[data-poster-download]')?.click();
+    }
+  });
+
+  document.querySelector('[data-court-link]')?.addEventListener('click', () => window.rakhiTrack('family_court_create', {}, id));
+  document.querySelector('[data-new-battle]')?.addEventListener('click', () => window.rakhiTrack('battle_start', { from: 'result' }, id));
+
+  async function loadRazorpay() {
+    if (window.Razorpay) return;
+    await new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.append(script);
+    });
+  }
+
+  document.querySelectorAll('[data-buy]').forEach((button) => button.addEventListener('click', async () => {
+    const tier = button.dataset.buy;
+    const status = document.querySelector('[data-pay-status]');
+    status.textContent = 'Opening secure checkout…';
+    window.rakhiTrack(`${tier === 'full' ? 'full_reveal' : 'savage'}_checkout_start`, {}, id);
+    try {
+      const response = await fetch('/api/checkout/order', {
+        method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ challenge_id: id, tier }),
+      });
+      const order = await response.json();
+      if (!response.ok) throw new Error(order.error || 'Checkout unavailable');
+      await loadRazorpay();
+      const checkout = new window.Razorpay({
+        key: order.key_id,
+        amount: order.amount,
+        currency: 'INR',
+        order_id: order.order_id,
+        name: 'Rakhi Battle 2026',
+        description: tier === 'full' ? 'Full Reveal' : 'Savage Mode',
+        theme: { color: '#7d1538' },
+        handler: async (payment) => {
+          const verify = await fetch('/api/checkout/verify', {
+            method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payment),
+          });
+          if (!verify.ok) throw new Error('Payment verification failed');
+          window.rakhiTrack(`${tier === 'full' ? 'full_reveal' : 'savage'}_purchase`, { amount: order.amount }, id);
+          location.reload();
+        },
+      });
+      checkout.open();
+      status.textContent = '';
+    } catch (error) {
+      status.textContent = error instanceof Error ? error.message : 'Checkout unavailable.';
+    }
+  }));
+</script>

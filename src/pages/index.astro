@@ -1,0 +1,33 @@
+---
+import Layout from '../layouts/Layout.astro';
+import QuizGame from '../components/QuizGame.astro';
+---
+<Layout>
+  <div class="shell">
+    <section class="hero">
+      <p class="eyebrow">Free • 8 questions • no signup</p>
+      <h1>You say your sibling <span>knows you.</span></h1>
+      <div class="rakhi-line"><span>र</span></div>
+      <p class="hero-copy">Prove it. Create a 60-second battle, send it on WhatsApp and let Family Court settle the damage.</p>
+      <a class="btn btn-primary" href="#play">Challenge your sibling — free</a>
+      <div class="proof-row"><span>⚡ 60–90 seconds</span><span>📲 WhatsApp-ready</span><span>🎨 Free result poster</span></div>
+    </section>
+
+    <section class="how">
+      <p class="eyebrow">How it works</p>
+      <h2>Three taps. One family dispute.</h2>
+      <div class="steps">
+        <article class="step"><b>01 — Pick</b><span>Answer 8 savage-but-safe sibling questions.</span></article>
+        <article class="step"><b>02 — Send</b><span>Drop your private challenge link on WhatsApp.</span></article>
+        <article class="step"><b>03 — Settle</b><span>Get a match score, poster and Family Court vote.</span></article>
+      </div>
+    </section>
+
+    <section id="play" class="how">
+      <QuizGame role="creator" />
+    </section>
+  </div>
+</Layout>
+<script>
+  window.rakhiTrack('landing_view');
+</script>

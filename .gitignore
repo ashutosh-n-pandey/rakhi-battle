@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.astro/
+.wrangler/
+.dev.vars
+.DS_Store
+worker-configuration.d.ts
+coverage/
+marketing/creatives/rendered/
