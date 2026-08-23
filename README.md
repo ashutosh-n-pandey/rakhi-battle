@@ -1,5 +1,7 @@
 # Rakhi Battle 2026
 
+[![Deploy to Cloudflare](https://github.com/ashutosh-n-pandey/rakhi-battle/actions/workflows/deploy.yml/badge.svg)](https://github.com/ashutosh-n-pandey/rakhi-battle/actions/workflows/deploy.yml)
+
 Mobile-first Rakhi sibling challenge built with Astro 7, Cloudflare Workers, D1 and deterministic browser Canvas posters. No model/API call occurs per player.
 
 ## Local setup
