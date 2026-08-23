@@ -34,6 +34,8 @@ npx wrangler secret put RAZORPAY_KEY_SECRET
 
 Set `PAYMENTS_ENABLED` to `true` only after live merchant activation, policies/contact/refund details are complete, and the test flow passes.
 
+Alternatively, the included GitHub Actions workflow deploys on `main` after repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are configured.
+
 ## Architecture
 
 - Astro server routes run in one Cloudflare Worker.

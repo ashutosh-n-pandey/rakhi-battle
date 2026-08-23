@@ -2,13 +2,15 @@ import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 import { db, json, readJson, secureEqual } from '../../../lib/server';
 
+const runtimeEnv = env as typeof env & { RAZORPAY_KEY_SECRET?: string };
+
 function bytesToHex(bytes: ArrayBuffer): string {
   return Array.from(new Uint8Array(bytes), (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    if (String(env.PAYMENTS_ENABLED) !== 'true' || !env.RAZORPAY_KEY_SECRET) return json({ error: 'Payments disabled.' }, 503);
+    if (String(runtimeEnv.PAYMENTS_ENABLED) !== 'true' || !runtimeEnv.RAZORPAY_KEY_SECRET) return json({ error: 'Payments disabled.' }, 503);
     const body = await readJson(request) as Record<string, unknown>;
     const orderId = typeof body.razorpay_order_id === 'string' ? body.razorpay_order_id : '';
     const paymentId = typeof body.razorpay_payment_id === 'string' ? body.razorpay_payment_id : '';
@@ -22,7 +24,7 @@ export const POST: APIRoute = async ({ request }) => {
     if (purchase.status === 'paid') return json({ ok: true, tier: purchase.tier });
 
     const key = await crypto.subtle.importKey(
-      'raw', new TextEncoder().encode(env.RAZORPAY_KEY_SECRET), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
+      'raw', new TextEncoder().encode(runtimeEnv.RAZORPAY_KEY_SECRET), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
     );
     const digest = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${orderId}|${paymentId}`));
     if (!(await secureEqual(bytesToHex(digest), signature))) return json({ error: 'Payment signature failed.' }, 400);

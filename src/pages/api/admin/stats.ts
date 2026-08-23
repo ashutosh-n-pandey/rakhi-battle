@@ -2,9 +2,11 @@ import type { APIRoute } from 'astro';
 import { env } from 'cloudflare:workers';
 import { db, json, secureEqual } from '../../../lib/server';
 
+const runtimeEnv = env as typeof env & { ADMIN_TOKEN?: string };
+
 export const GET: APIRoute = async ({ request }) => {
   const supplied = request.headers.get('x-admin-token') ?? '';
-  if (!env.ADMIN_TOKEN || !(await secureEqual(supplied, env.ADMIN_TOKEN))) return json({ error: 'Unauthorized.' }, 401);
+  if (!runtimeEnv.ADMIN_TOKEN || !(await secureEqual(supplied, runtimeEnv.ADMIN_TOKEN))) return json({ error: 'Unauthorized.' }, 401);
 
   const [events, totals, sources, purchases] = await db().batch([
     db().prepare(`SELECT event_name, COUNT(*) AS count, COUNT(DISTINCT session_id) AS users
