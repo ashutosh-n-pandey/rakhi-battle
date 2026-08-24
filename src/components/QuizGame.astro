@@ -23,15 +23,14 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
     <form data-name-form>
       <input data-name maxlength="24" autocomplete="nickname" placeholder={role === 'creator' ? 'Your nickname' : 'Your nickname'} required />
       {(role === 'creator' || leaderboardCreatorOptIn) && (
-        <label class="consent-row">
-          <input type="checkbox" data-hall-consent />
-          <span>
-            <strong>{role === 'creator' ? 'Hall of Fame (optional)' : 'Join the Hall of Fame too'}</strong>
-            {role === 'creator'
-              ? ' If both of you agree, show your nicknames, score and a unique battle code publicly.'
-              : ` ${creatorName} opted in. Tick this only if you also agree to show both nicknames, score and battle code publicly.`}
-          </span>
-        </label>
+        <fieldset class="hall-choice" data-hall-choice>
+          <legend>{role === 'creator' ? 'Put us in the Rakhi Hall of Fame?' : `Join ${creatorName} in the Hall of Fame?`}</legend>
+          <p>Only nicknames, score and battle code become public. Answers stay private. Both siblings must say yes.</p>
+          <div>
+            <button type="button" class="hall-option hall-option-yes" data-hall-value="yes" aria-pressed="false">🏵️ Yes, add us</button>
+            <button type="button" class="hall-option" data-hall-value="no" aria-pressed="false">🔒 Keep private</button>
+          </div>
+        </fieldset>
       )}
       <button class="btn btn-primary btn-block" type="submit">
         {role === 'creator' ? 'Apni Rakhi Battle shuru karo →' : 'Challenge accept karo →'}
@@ -39,7 +38,14 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
     </form>
   </div>
 
-  <div class="card hidden" data-question-screen aria-live="polite">
+  <div class="card game-opening hidden" data-opening-screen aria-live="polite">
+    <div class="opening-names"><strong data-opening-player></strong><span>×</span><strong>{role === 'sibling' ? creatorName : 'YOUR SIBLING'}</strong></div>
+    <div class="animated-rakhi" aria-hidden="true"><i></i><span>र</span><i></i></div>
+    <p class="eyebrow">Memory box opening…</p>
+    <h2>Ek hi bachpan.<br /><span>Do alag kahaaniyan.</span></h2>
+  </div>
+
+  <div class="card question-screen hidden" data-question-screen aria-live="polite">
     <div class="question-emoji" data-emoji></div>
     <h2 class="question-title" data-question></h2>
     <div class="options" data-options></div>
@@ -59,6 +65,7 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
     const nameScreen = root.querySelector<HTMLElement>('[data-name-screen]')!;
     const nameForm = root.querySelector<HTMLFormElement>('[data-name-form]')!;
     const nameInput = root.querySelector<HTMLInputElement>('[data-name]')!;
+    const openingScreen = root.querySelector<HTMLElement>('[data-opening-screen]')!;
     const questionScreen = root.querySelector<HTMLElement>('[data-question-screen]')!;
     const progress = root.querySelector<HTMLElement>('[data-progress]')!;
     const progressMeta = root.querySelector<HTMLElement>('[data-progress-meta]')!;
@@ -72,12 +79,13 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
     const draftKey = `rb_quiz_${role}_${challengeId || 'new'}`;
     let playerName = '';
     let leaderboardOptIn = false;
+    let leaderboardChoiceMade = root.querySelectorAll('[data-hall-value]').length === 0;
     let index = 0;
     let busy = false;
 
     function saveDraft(nextIndex = index) {
       try {
-        localStorage.setItem(draftKey, JSON.stringify({ name: playerName, answers, index: nextIndex }));
+        localStorage.setItem(draftKey, JSON.stringify({ name: playerName, answers, index: nextIndex, leaderboardOptIn }));
       } catch {
         // The game remains usable when storage is restricted.
       }
@@ -103,6 +111,9 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
       emoji.textContent = question.emoji;
       title.textContent = question.prompt;
       options.replaceChildren();
+      questionScreen.classList.remove('question-enter');
+      void questionScreen.offsetWidth;
+      questionScreen.classList.add('question-enter');
       question.options.forEach((option) => {
         const button = document.createElement('button');
         button.type = 'button';
@@ -123,11 +134,44 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
             } else {
               await finish();
             }
-          }, 150);
+          }, 280);
         });
         options.appendChild(button);
       });
     }
+
+    function beginQuestions(withOpening: boolean) {
+      nameScreen.classList.add('hidden');
+      root.classList.add('quiz-active');
+      const revealQuestions = () => {
+        openingScreen.classList.add('hidden');
+        questionScreen.classList.remove('hidden');
+        progress.classList.remove('hidden');
+        progressMeta.classList.remove('hidden');
+        showQuestion();
+        requestAnimationFrame(() => root.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+      };
+      if (!withOpening || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        revealQuestions();
+        return;
+      }
+      openingScreen.querySelector<HTMLElement>('[data-opening-player]')!.textContent = playerName.toUpperCase();
+      openingScreen.classList.remove('hidden');
+      setTimeout(revealQuestions, 1600);
+    }
+
+    root.querySelectorAll<HTMLButtonElement>('[data-hall-value]').forEach((button) => {
+      button.addEventListener('click', () => {
+        leaderboardChoiceMade = true;
+        leaderboardOptIn = button.dataset.hallValue === 'yes';
+        root.querySelectorAll<HTMLButtonElement>('[data-hall-value]').forEach((option) => {
+          const selected = option === button;
+          option.classList.toggle('selected', selected);
+          option.setAttribute('aria-pressed', String(selected));
+        });
+        error.textContent = '';
+      });
+    });
 
     async function finish() {
       error.textContent = '';
@@ -169,18 +213,18 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
       event.preventDefault();
       playerName = nameInput.value.trim().slice(0, 24);
       if (!playerName) return;
-      leaderboardOptIn = root.querySelector<HTMLInputElement>('[data-hall-consent]')?.checked === true;
+      if (!leaderboardChoiceMade) {
+        error.textContent = 'Choose Hall of Fame or Keep private to continue.';
+        root.querySelector<HTMLElement>('[data-hall-choice]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
       saveDraft(0);
       if (role === 'sibling' && challengeId) {
         rememberBattle({ id: challengeId, name: `${root.dataset.creator} × ${playerName}`, role: 'sibling' });
       }
-      nameScreen.classList.add('hidden');
-      questionScreen.classList.remove('hidden');
-      progress.classList.remove('hidden');
-      progressMeta.classList.remove('hidden');
       window.rakhiTrack(role === 'creator' ? 'battle_start' : 'challenge_open', {}, challengeId || null);
       saveSiblingProgress(0);
-      showQuestion();
+      beginQuestions(true);
     });
 
     try {
@@ -188,21 +232,20 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
         name?: string;
         answers?: Record<string, unknown>;
         index?: number;
+        leaderboardOptIn?: boolean;
       } | null;
       if (draft?.name && typeof draft.name === 'string') {
         playerName = draft.name.slice(0, 24);
         nameInput.value = playerName;
+        leaderboardOptIn = draft.leaderboardOptIn === true;
+        leaderboardChoiceMade = true;
         for (const question of questions) {
           const value = draft.answers?.[question.key];
           if (['creator', 'sibling', 'both', 'denied'].includes(String(value))) answers[question.key] = value as Answers[string];
         }
         index = Math.max(0, Math.min(Number(draft.index || 0), questions.length));
-        nameScreen.classList.add('hidden');
-        questionScreen.classList.remove('hidden');
-        progress.classList.remove('hidden');
-        progressMeta.classList.remove('hidden');
         if (index >= questions.length) void finish();
-        else showQuestion();
+        else beginQuestions(false);
       }
     } catch {
       clearDraft();

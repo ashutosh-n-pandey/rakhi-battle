@@ -8,6 +8,7 @@ const allowed = new Set([
   'savage_checkout_start', 'savage_purchase', 'full_reveal_checkout_start',
   'full_reveal_purchase', 'gift_click', 'waiting_view', 'premium_poster_download',
   'certificate_download', 'repeat_battle_click', 'support_submit',
+  'free_result_continue',
 ]);
 
 export const POST: APIRoute = async ({ request }) => {
