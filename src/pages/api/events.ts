@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { db, json, readJson, safeMetric, sourceFrom } from '../../lib/server';
+import { challengeIdFrom, db, json, readJson, safeMetric, sourceFrom } from '../../lib/server';
 
 const allowed = new Set([
   'landing_view', 'battle_start', 'battle_creator_complete', 'challenge_share_click',
@@ -15,7 +15,7 @@ export const POST: APIRoute = async ({ request }) => {
     const eventName = safeMetric(body.event, 50);
     const sessionId = safeMetric(body.session_id, 80);
     if (!eventName || !allowed.has(eventName) || !sessionId) return json({ ok: false }, 400);
-    const challengeId = safeMetric(body.challenge_id, 32);
+    const challengeId = challengeIdFrom(body.challenge_id);
     const payload = body.payload && typeof body.payload === 'object'
       ? JSON.stringify(body.payload).slice(0, 1_000)
       : null;

@@ -65,6 +65,9 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin);
           utm_source: params.get('utm_source') || saved.utm_source || null,
           utm_medium: params.get('utm_medium') || saved.utm_medium || null,
           utm_campaign: params.get('utm_campaign') || saved.utm_campaign || null,
+          parent_challenge_id: /^[a-f0-9]{24}$/.test(params.get('parent') || '')
+            ? params.get('parent')
+            : saved.parent_challenge_id || null,
         };
         localStorage.setItem('rb_attr', JSON.stringify(attr));
         window.rakhiSession = session;

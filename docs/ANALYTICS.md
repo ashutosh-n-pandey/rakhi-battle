@@ -2,6 +2,8 @@
 
 The client keeps an anonymous random session ID in local storage and preserves first-known attribution. Events are written to D1 with no phone number, email or contact-list data.
 
+When a person starts a new battle from a result or Family Court, the new challenge stores only the opaque parent challenge ID, root challenge ID and generation number. This provides an anonymous referral tree without exposing it publicly or requiring an account.
+
 | Event | When |
 |---|---|
 | `landing_view` | Home rendered |
@@ -28,5 +30,8 @@ The client keeps an anonymous random session ID in local storage and preserves f
 - Viral visitors per acquired visitor = unique non-paid referral sessions / unique paid-attributed sessions
 - Buyer conversion = verified paid purchases / completed pairs
 - Revenue per acquired visitor = verified revenue / unique paid-attributed sessions
+- Viral coefficient = child battles with a valid parent / completed battles
+- Transfer time = median minutes from a parent result to its child battle
+- Paid conversion = distinct paid battles / completed battles
 
 Do not infer actual WhatsApp sends from button clicks. A click is share intent; downstream `challenge_open` is the verified outcome.

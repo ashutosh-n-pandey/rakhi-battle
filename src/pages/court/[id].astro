@@ -41,7 +41,7 @@ const courtQuestions = courtQuestionKeys.map((key) => questions.find((q) => q.ke
         <p class="eyebrow">Current public verdict</p>
         <h2 data-vote-count>{rows.results.length} family votes</h2>
         <div data-bars></div>
-        <a class="btn btn-gold btn-block" href="/?ref=family_court" data-court-new>Start your own Rakhi Battle</a>
+        <a class="btn btn-gold btn-block" href={`/?ref=family_court&parent=${id}`} data-court-new>Start your own Rakhi Battle</a>
       </div>
     </section>
   </div>

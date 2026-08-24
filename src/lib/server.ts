@@ -1,5 +1,6 @@
 import { env } from 'cloudflare:workers';
 import type { Answers, GameResult } from './game';
+import type { PaidTier } from './payments';
 
 export interface ChallengeRow {
   id: string;
@@ -12,6 +13,10 @@ export interface ChallengeRow {
   status: 'open' | 'complete';
   leaderboard_creator_opt_in: number;
   leaderboard_sibling_opt_in: number;
+  creator_session_id: string | null;
+  parent_challenge_id: string | null;
+  root_challenge_id: string | null;
+  generation: number;
   expires_at: string;
 }
 
@@ -38,19 +43,29 @@ export async function getChallenge(id: string): Promise<ChallengeRow | null> {
   return db().prepare(
     `SELECT id, creator_name, sibling_name, creator_answers, sibling_answers,
             score, result_json, status, leaderboard_creator_opt_in,
-            leaderboard_sibling_opt_in, expires_at
+            leaderboard_sibling_opt_in, creator_session_id,
+            parent_challenge_id, root_challenge_id, generation, expires_at
        FROM challenges
       WHERE id = ? AND expires_at > CURRENT_TIMESTAMP`
   ).bind(id).first<ChallengeRow>();
 }
 
-export async function paidTier(challengeId: string): Promise<'savage' | 'full' | null> {
+export async function paidTier(challengeId: string): Promise<PaidTier | null> {
   const row = await db().prepare(
     `SELECT tier FROM purchases
       WHERE challenge_id = ? AND status = 'paid'
-      ORDER BY amount DESC LIMIT 1`
-  ).bind(challengeId).first<{ tier: 'savage' | 'full' }>();
+      ORDER BY CASE tier WHEN 'full' THEN 2 ELSE 1 END DESC LIMIT 1`
+  ).bind(challengeId).first<{ tier: PaidTier }>();
   return row?.tier ?? null;
+}
+
+export function retentionDays(): number {
+  const configured = Number(env.DATA_RETENTION_DAYS || 45);
+  return Number.isInteger(configured) && configured >= 1 && configured <= 365 ? configured : 45;
+}
+
+export function challengeIdFrom(value: unknown): string | null {
+  return typeof value === 'string' && /^[a-f0-9]{24}$/.test(value) ? value : null;
 }
 
 export function parseAnswers(raw: string): Answers {

@@ -127,7 +127,7 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
         const attr = window.rakhiAttribution || { source: 'direct' };
         const endpoint = role === 'creator' ? '/api/challenges' : `/api/challenges/${challengeId}/complete`;
         const payload = role === 'creator'
-          ? { creator_name: playerName, answers, leaderboard_opt_in: leaderboardOptIn, ...attr }
+          ? { creator_name: playerName, answers, leaderboard_opt_in: leaderboardOptIn, session_id: window.rakhiSession, ...attr }
           : { sibling_name: playerName, answers, leaderboard_opt_in: leaderboardOptIn, session_id: window.rakhiSession, ...attr };
         const response = await fetch(endpoint, {
           method: 'POST',
@@ -138,6 +138,10 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
         if (!response.ok) throw new Error(data.error || 'Something went wrong');
         if (role === 'creator') {
           rememberBattle({ id: data.id, name: playerName, role: 'creator' });
+          if (window.rakhiAttribution?.parent_challenge_id) {
+            window.rakhiAttribution.parent_challenge_id = null;
+            localStorage.setItem('rb_attr', JSON.stringify(window.rakhiAttribution));
+          }
           window.rakhiTrack('battle_creator_complete', {}, data.id);
           const shareUrl = new URL(`/battle/${data.id}`, location.origin);
           shareUrl.searchParams.set('utm_source', 'whatsapp');

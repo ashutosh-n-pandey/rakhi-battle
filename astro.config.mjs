@@ -5,7 +5,7 @@ export default defineConfig({
   output: 'server',
   adapter: cloudflare({ imageService: 'compile' }),
   session: false,
-  site: 'https://rakhi-battle.workers.dev',
+  site: 'https://rakhi-battle.riselikealion7.workers.dev',
   vite: {
     build: { minify: true },
   },

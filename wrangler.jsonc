@@ -2,7 +2,7 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "rakhi-battle",
   "main": "@astrojs/cloudflare/entrypoints/server",
-  "compatibility_date": "2026-08-23",
+  "compatibility_date": "2026-08-24",
   "d1_databases": [
     {
       "binding": "DB",
@@ -11,7 +11,7 @@
     }
   ],
   "vars": {
-    "APP_ORIGIN": "https://rakhi-battle.workers.dev",
+    "APP_ORIGIN": "https://rakhi-battle.riselikealion7.workers.dev",
     "PAYMENTS_ENABLED": "false",
     "DATA_RETENTION_DAYS": "45"
   },
