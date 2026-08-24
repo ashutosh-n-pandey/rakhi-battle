@@ -18,7 +18,7 @@ This checkpoint prepares the existing product for the nine reviewed execution bl
 - `PAYMENTS_ENABLED` remains `false`.
 - No new landing-page promise, final content, visual direction or poster/report design.
 - No public family-tree visualization.
-- No production deployment from this checkpoint until review.
+- No manual launch or feature activation; the repository's existing main-branch workflow may publish this backward-compatible foundation automatically.
 
 ## Nine blocks to review next
 
