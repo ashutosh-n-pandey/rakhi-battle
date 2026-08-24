@@ -27,8 +27,7 @@ npm run deploy:dry
 
 ```bash
 npx wrangler login
-npm run db:remote
-npm run deploy
+npm run release
 npx wrangler secret put ADMIN_TOKEN
 npx wrangler secret put RAZORPAY_KEY_ID
 npx wrangler secret put RAZORPAY_KEY_SECRET
