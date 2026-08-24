@@ -6,6 +6,7 @@
   "d1_databases": [
     {
       "binding": "DB",
+      "database_id": "141f5d06-3e13-4147-8c1a-88687e2df022",
       "migrations_dir": "migrations"
     }
   ],
