@@ -11,6 +11,7 @@
     "db:local": "wrangler d1 migrations apply DB --local --config wrangler.jsonc",
     "db:remote": "wrangler d1 migrations apply DB --remote --config wrangler.jsonc",
     "deploy": "npm run build && wrangler deploy",
+    "release": "npm test && npm run build && npm run db:remote && wrangler deploy",
     "deploy:dry": "npm run build && wrangler deploy --dry-run"
   },
   "dependencies": {
