@@ -8,7 +8,7 @@ export const GET: APIRoute = async ({ request }) => {
   const supplied = request.headers.get('x-admin-token') ?? '';
   if (!runtimeEnv.ADMIN_TOKEN || !(await secureEqual(supplied, runtimeEnv.ADMIN_TOKEN))) return json({ error: 'Unauthorized.' }, 401);
 
-  const [events, totals, sources, purchases, visitors, generations, transfers] = await db().batch([
+  const [events, totals, sources, purchases, visitors, generations, transfers, support, supportCounts] = await db().batch([
     db().prepare(`SELECT event_name, COUNT(*) AS count, COUNT(DISTINCT session_id) AS users
                     FROM events GROUP BY event_name ORDER BY count DESC`),
     db().prepare(`SELECT COUNT(*) AS battles,
@@ -36,6 +36,11 @@ export const GET: APIRoute = async ({ request }) => {
                     JOIN challenges parent ON parent.id = child.parent_challenge_id
                    ORDER BY minutes
                    LIMIT 5000`),
+    db().prepare(`SELECT id, category, email, challenge_id, message, status, created_at
+                    FROM support_requests
+                   WHERE status = 'open'
+                   ORDER BY created_at DESC LIMIT 20`),
+    db().prepare(`SELECT status, COUNT(*) AS count FROM support_requests GROUP BY status`),
   ]);
   const total = totals.results[0] as Record<string, number | null> | undefined;
   const purchase = purchases.results[0] as Record<string, number | null> | undefined;
@@ -58,6 +63,8 @@ export const GET: APIRoute = async ({ request }) => {
     sources: sources.results,
     purchases: purchase,
     generations: generations.results,
+    support: support.results,
+    support_counts: supportCounts.results,
     growth: {
       visitors: Number((visitors.results[0] as { visitors?: number } | undefined)?.visitors || 0),
       viral_coefficient: completed ? referred / completed : 0,

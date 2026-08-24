@@ -22,14 +22,14 @@ const peopleOptions = [
 ];
 
 export const questions: Question[] = [
-  { key: 'mummy', prompt: "Who is mummy's secret favourite?", short: "Mummy's favourite", emoji: '👑', options: peopleOptions },
-  { key: 'fight', prompt: 'Who starts most of the fights?', short: 'Fight starter', emoji: '🥊', options: peopleOptions },
-  { key: 'drama', prompt: 'Who deserves the drama championship?', short: 'Drama champion', emoji: '🎭', options: peopleOptions },
-  { key: 'kanjoos', prompt: 'Who is more kanjoos with their own money?', short: 'Kanjoos crown', emoji: '🪙', options: peopleOptions },
-  { key: 'food', prompt: "Who steals the other's food without asking?", short: 'Food thief', emoji: '🍟', options: peopleOptions },
-  { key: 'gift', prompt: 'Who will demand the better Rakhi gift?', short: 'Gift expectations', emoji: '🎁', options: peopleOptions },
-  { key: 'sorry', prompt: 'Who says sorry first after a fight?', short: 'Peace maker', emoji: '🤝', options: peopleOptions },
-  { key: 'caring', prompt: 'Who is secretly more caring?', short: 'Secretly caring', emoji: '🫶', options: peopleOptions },
+  { key: 'mummy', prompt: "Ghar mein mummy ka secret favourite kaun tha?", short: "Mummy's favourite", emoji: '👑', options: peopleOptions },
+  { key: 'fight', prompt: 'Remote ki ladai sabse pehle kaun shuru karta tha?', short: 'Remote-war starter', emoji: '📺', options: peopleOptions },
+  { key: 'drama', prompt: 'Har chhoti baat ka family drama kaun banata tha?', short: 'Drama champion', emoji: '🎭', options: peopleOptions },
+  { key: 'kanjoos', prompt: 'Apne paise bachakar doosre ke snacks kaun khaata tha?', short: 'Kanjoos crown', emoji: '🪙', options: peopleOptions },
+  { key: 'food', prompt: 'Plate se bina poochhe last bite kaun churaata tha?', short: 'Last-bite chor', emoji: '🍟', options: peopleOptions },
+  { key: 'gift', prompt: 'Rakhi shagun ka budget sabse pehle kaun negotiate karega?', short: 'Shagun negotiator', emoji: '🎁', options: peopleOptions },
+  { key: 'sorry', prompt: 'Ladai ke baad peace offering sabse pehle kaun laata hai?', short: 'Peace maker', emoji: '🤝', options: peopleOptions },
+  { key: 'caring', prompt: 'Bina bole sabse zyada khayal kaun rakhta hai?', short: 'Quietly caring', emoji: '🫶', options: peopleOptions },
 ];
 
 export const courtQuestionKeys = ['mummy', 'drama', 'kanjoos', 'gift'] as const;
@@ -57,8 +57,8 @@ export function computeResult(creator: Answers, sibling: Answers): GameResult {
       total: questions.length,
       percent,
       winner: 'sibling',
-      verdict: 'Certified mind reader',
-      subline: 'Suspiciously accurate. You have been observed.',
+      verdict: 'Bachpan ke co-authors',
+      subline: 'Same memories, same frequency—credit kisne liya, us par case pending hai.',
       agreements: agreements.map((q) => q.key),
       disputes: disputes.map((q) => q.key),
     };
@@ -69,8 +69,8 @@ export function computeResult(creator: Answers, sibling: Answers): GameResult {
       total: questions.length,
       percent,
       winner: 'both',
-      verdict: 'Same family, different reality',
-      subline: 'Enough agreement to stay siblings. Barely.',
+      verdict: 'Same bachpan, two director’s cuts',
+      subline: 'Kahaani ek hai. Bas tum dono ka edit bilkul alag hai.',
       agreements: agreements.map((q) => q.key),
       disputes: disputes.map((q) => q.key),
     };
@@ -80,8 +80,8 @@ export function computeResult(creator: Answers, sibling: Answers): GameResult {
     total: questions.length,
     percent,
     winner: 'creator',
-    verdict: 'Do you two even talk?',
-    subline: 'Family Court has been summoned immediately.',
+    verdict: 'Two stories, one unbreakable team',
+    subline: 'Yaadein alag ho sakti hain. Family group chat phir bhi ek hi rahega.',
     agreements: agreements.map((q) => q.key),
     disputes: disputes.map((q) => q.key),
   };
@@ -117,8 +117,22 @@ export function getWinnerName(result: GameResult, creatorName: string, siblingNa
 }
 
 export function savageVerdict(result: GameResult, creatorName: string, siblingName: string): string {
-  if (result.matches >= 7) return `${siblingName} knows ${creatorName} better than the family group chat does. Mildly alarming.`;
-  if (result.matches >= 5) return `${creatorName} and ${siblingName} share one brain cell, but it changes owner without warning.`;
-  if (result.matches >= 3) return `They share DNA, snacks and absolutely incompatible versions of every family story.`;
-  return `${creatorName} and ${siblingName} need introductions. Please involve a responsible adult.`;
+  if (result.matches >= 7) return `${creatorName} aur ${siblingName} ek hi brain cell share karte hain—and uski custody har Tuesday badalti hai.`;
+  if (result.matches >= 5) return `Same ghar, same bachpan, aur family history ke do equally confident historians.`;
+  if (result.matches >= 3) return `${creatorName} aur ${siblingName} ko events yaad hain. Facts par abhi bhi Family Court baithi hai.`;
+  return `Har legendary sibling story ke do narrators hote hain. In dono ki kahaani full web-series material hai.`;
+}
+
+export function bondTitle(result: GameResult): string {
+  if (result.matches >= 7) return 'Same-Brain Siblings';
+  if (result.matches >= 5) return 'Bachpan Co-Authors';
+  if (result.matches >= 3) return 'Director’s-Cut Duo';
+  return 'Plot-Twist Partners';
+}
+
+export function chainTitle(generation: number): string {
+  if (generation <= 0) return 'Chain Starter';
+  if (generation === 1) return 'Bachpan Messenger';
+  if (generation === 2) return 'Family Influencer';
+  return 'Rakhi Legend';
 }

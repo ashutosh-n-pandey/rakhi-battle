@@ -17,8 +17,8 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
   <div class="progress hidden" data-progress><span></span></div>
 
   <div class="card name-screen" data-name-screen>
-    <p class="eyebrow">{role === 'creator' ? 'Shubh aarambh • create your battle' : `${creatorName} sent you a Rakhi challenge`}</p>
-    <h2>{role === 'creator' ? 'Your festive nickname?' : 'Ready to defend the sibling bond?'}</h2>
+    <p class="eyebrow">{role === 'creator' ? 'Shubh aarambh • open the memory box' : `${creatorName} remembers your childhood differently`}</p>
+    <h2>{role === 'creator' ? 'Ghar mein tumhe kya bulaate hain?' : 'Tumhari kahaani kya kehti hai?'}</h2>
     <p class="muted">Only a nickname. No phone number, email or signup.</p>
     <form data-name-form>
       <input data-name maxlength="24" autocomplete="nickname" placeholder={role === 'creator' ? 'Your nickname' : 'Your nickname'} required />
@@ -34,7 +34,7 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
         </label>
       )}
       <button class="btn btn-primary btn-block" type="submit">
-        {role === 'creator' ? 'Begin the Rakhi battle →' : 'Accept the shagun challenge →'}
+        {role === 'creator' ? 'Apni Rakhi Battle shuru karo →' : 'Challenge accept karo →'}
       </button>
     </form>
   </div>
@@ -43,21 +43,6 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
     <div class="question-emoji" data-emoji></div>
     <h2 class="question-title" data-question></h2>
     <div class="options" data-options></div>
-  </div>
-
-  <div class="card share-box hidden" data-share-screen>
-    <p class="eyebrow">Rakhi challenge ready ✨</p>
-    <h2>Send the festive summons 😏</h2>
-    <p class="muted">Your score, celebration poster and Family Court unlock after your sibling answers.</p>
-    <div class="share-link">
-      <input data-share-url readonly aria-label="Challenge link" />
-      <button class="btn btn-ghost" data-copy type="button">Copy</button>
-    </div>
-    <div class="share-actions">
-      <button class="btn btn-primary" data-whatsapp type="button">WhatsApp</button>
-      <button class="btn btn-gold" data-native-share type="button">Share</button>
-    </div>
-    <p class="status" data-status></p>
   </div>
 
   <p class="status error" data-error aria-live="assertive"></p>
@@ -82,13 +67,34 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
     const emoji = root.querySelector<HTMLElement>('[data-emoji]')!;
     const title = root.querySelector<HTMLElement>('[data-question]')!;
     const options = root.querySelector<HTMLElement>('[data-options]')!;
-    const shareScreen = root.querySelector<HTMLElement>('[data-share-screen]')!;
     const error = root.querySelector<HTMLElement>('[data-error]')!;
     const answers: Answers = {};
+    const draftKey = `rb_quiz_${role}_${challengeId || 'new'}`;
     let playerName = '';
     let leaderboardOptIn = false;
     let index = 0;
     let busy = false;
+
+    function saveDraft(nextIndex = index) {
+      try {
+        localStorage.setItem(draftKey, JSON.stringify({ name: playerName, answers, index: nextIndex }));
+      } catch {
+        // The game remains usable when storage is restricted.
+      }
+    }
+
+    function clearDraft() {
+      try { localStorage.removeItem(draftKey); } catch { /* Storage is optional. */ }
+    }
+
+    function saveSiblingProgress(progressValue: number) {
+      if (role !== 'sibling' || !challengeId) return;
+      void fetch(`/api/challenges/${challengeId}/progress`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ progress: progressValue }),
+      }).catch(() => {});
+    }
 
     function showQuestion() {
       const question = questions[index];
@@ -107,6 +113,8 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
           busy = true;
           button.classList.add('selected');
           answers[question.key] = option.id;
+          saveDraft(index + 1);
+          saveSiblingProgress(index + 1);
           setTimeout(async () => {
             index += 1;
             if (index < questions.length) {
@@ -136,6 +144,7 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
         });
         const data = await response.json() as { error?: string; id: string; result: { percent: number } };
         if (!response.ok) throw new Error(data.error || 'Something went wrong');
+        clearDraft();
         if (role === 'creator') {
           rememberBattle({ id: data.id, name: playerName, role: 'creator' });
           if (window.rakhiAttribution?.parent_challenge_id) {
@@ -143,12 +152,7 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
             localStorage.setItem('rb_attr', JSON.stringify(window.rakhiAttribution));
           }
           window.rakhiTrack('battle_creator_complete', {}, data.id);
-          const shareUrl = new URL(`/battle/${data.id}`, location.origin);
-          shareUrl.searchParams.set('utm_source', 'whatsapp');
-          shareUrl.searchParams.set('utm_medium', 'challenge');
-          shareUrl.searchParams.set('utm_campaign', 'rakhi2026');
-          shareUrl.searchParams.set('ref', 'sibling_challenge');
-          setupShare(shareUrl.toString(), data.id);
+          location.href = `/waiting/${data.id}?fresh=1`;
         } else {
           rememberBattle({ id: challengeId, name: `${root.dataset.creator} × ${playerName}`, role: 'sibling' });
           window.rakhiTrack('challenge_complete', { score: data.result.percent }, challengeId);
@@ -161,36 +165,12 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
       }
     }
 
-    function setupShare(url: string, id: string) {
-      questionScreen.classList.add('hidden');
-      progress.classList.add('hidden');
-      progressMeta.classList.add('hidden');
-      shareScreen.classList.remove('hidden');
-      const urlInput = root.querySelector<HTMLInputElement>('[data-share-url]')!;
-      const status = root.querySelector<HTMLElement>('[data-status]')!;
-      urlInput.value = url;
-      const text = `🪔 ${playerName} sent you a Rakhi Battle! Pyaar bhi, proof bhi 😏\nAccept the festive challenge:`;
-      root.querySelector('[data-copy]')?.addEventListener('click', async () => {
-        await navigator.clipboard.writeText(url);
-        status.textContent = 'Link copied.';
-        window.rakhiTrack('challenge_share_click', { channel: 'copy' }, id);
-      });
-      root.querySelector('[data-whatsapp]')?.addEventListener('click', () => {
-        window.rakhiTrack('challenge_share_click', { channel: 'whatsapp' }, id);
-        location.href = `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`;
-      });
-      root.querySelector('[data-native-share]')?.addEventListener('click', async () => {
-        window.rakhiTrack('challenge_share_click', { channel: 'native' }, id);
-        if (navigator.share) await navigator.share({ title: 'Rakhi Battle 2026', text, url });
-        else await navigator.clipboard.writeText(url);
-      });
-    }
-
     nameForm.addEventListener('submit', (event) => {
       event.preventDefault();
       playerName = nameInput.value.trim().slice(0, 24);
       if (!playerName) return;
       leaderboardOptIn = root.querySelector<HTMLInputElement>('[data-hall-consent]')?.checked === true;
+      saveDraft(0);
       if (role === 'sibling' && challengeId) {
         rememberBattle({ id: challengeId, name: `${root.dataset.creator} × ${playerName}`, role: 'sibling' });
       }
@@ -199,7 +179,33 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
       progress.classList.remove('hidden');
       progressMeta.classList.remove('hidden');
       window.rakhiTrack(role === 'creator' ? 'battle_start' : 'challenge_open', {}, challengeId || null);
+      saveSiblingProgress(0);
       showQuestion();
     });
+
+    try {
+      const draft = JSON.parse(localStorage.getItem(draftKey) || 'null') as {
+        name?: string;
+        answers?: Record<string, unknown>;
+        index?: number;
+      } | null;
+      if (draft?.name && typeof draft.name === 'string') {
+        playerName = draft.name.slice(0, 24);
+        nameInput.value = playerName;
+        for (const question of questions) {
+          const value = draft.answers?.[question.key];
+          if (['creator', 'sibling', 'both', 'denied'].includes(String(value))) answers[question.key] = value as Answers[string];
+        }
+        index = Math.max(0, Math.min(Number(draft.index || 0), questions.length));
+        nameScreen.classList.add('hidden');
+        questionScreen.classList.remove('hidden');
+        progress.classList.remove('hidden');
+        progressMeta.classList.remove('hidden');
+        if (index >= questions.length) void finish();
+        else showQuestion();
+      }
+    } catch {
+      clearDraft();
+    }
   }
 </script>

@@ -1,0 +1,88 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getChallenge } from '../../lib/server';
+
+const id = Astro.params.id ?? '';
+const challenge = await getChallenge(id);
+if (!challenge) return Astro.redirect('/?expired=1');
+if (challenge.status === 'complete') return Astro.redirect(`/result/${id}`);
+const invite = new URL(`/battle/${id}`, Astro.site ?? Astro.url.origin);
+invite.searchParams.set('ref', 'sibling_challenge');
+invite.searchParams.set('utm_source', 'whatsapp');
+invite.searchParams.set('utm_medium', 'challenge');
+invite.searchParams.set('utm_campaign', 'rakhi2026');
+---
+<Layout title={`${challenge.creator_name}'s Rakhi Battle is waiting`} description="Your sibling challenge is ready. Share it and watch the answers arrive." noindex>
+  <div class="shell">
+    <section class="hero waiting-hero">
+      <p class="eyebrow">🧵 Challenge safely saved</p>
+      <h1>Ab sibling ki <span>baari hai.</span></h1>
+      <p class="hero-copy">Send the private link to the sibling who shares this bachpan with you.</p>
+    </section>
+    <section class="card waiting-card" data-waiting data-id={id} data-url={invite.toString()} data-name={challenge.creator_name}>
+      <div class="waiting-diya" aria-hidden="true">🪔</div>
+      <p class="eyebrow">Live answer progress</p>
+      <h2 data-wait-title>{challenge.sibling_progress > 0 ? `Your sibling has answered ${challenge.sibling_progress}/8` : 'Invitation abhi khulna baaki hai'}</h2>
+      <div class="waiting-progress"><span data-wait-bar style={`width:${challenge.sibling_progress * 12.5}%`}></span></div>
+      <p class="muted" data-wait-copy>{challenge.sibling_progress > 0 ? 'The childhood archive is opening…' : 'This page will update automatically after they begin.'}</p>
+      <div class="share-link"><input readonly value={invite.toString()} aria-label="Private Rakhi challenge link" /><button class="btn btn-ghost" data-wait-copy-link>Copy</button></div>
+      <div class="share-actions">
+        <button class="btn btn-primary" data-wait-whatsapp>Send on WhatsApp</button>
+        <button class="btn btn-gold" data-wait-share>Share</button>
+      </div>
+      <p class="status" data-wait-status></p>
+    </section>
+    <section class="waiting-extra">
+      <p><strong>Want another battle?</strong> This one stays saved on this device.</p>
+      <a class="btn btn-ghost" href={`/?ref=waiting_replay&parent=${id}#play`}>Challenge another sibling or cousin</a>
+    </section>
+  </div>
+</Layout>
+<script>
+  const root = document.querySelector<HTMLElement>('[data-waiting]')!;
+  const id = root.dataset.id!;
+  const url = root.dataset.url!;
+  const name = root.dataset.name!;
+  const text = `${name} remembers your bachpan differently 😏\n8 sawaal. Ek Rakhi Battle. Accept karo:`;
+  const status = root.querySelector<HTMLElement>('[data-wait-status]')!;
+
+  async function copyLink() {
+    await navigator.clipboard.writeText(url);
+    status.textContent = 'Private link copied ✓';
+    window.rakhiTrack('challenge_share_click', { channel: 'copy', from: 'waiting' }, id);
+  }
+  root.querySelector('[data-wait-copy-link]')?.addEventListener('click', copyLink);
+  root.querySelector('[data-wait-whatsapp]')?.addEventListener('click', () => {
+    window.rakhiTrack('challenge_share_click', { channel: 'whatsapp', from: 'waiting' }, id);
+    location.href = `https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`;
+  });
+  root.querySelector('[data-wait-share]')?.addEventListener('click', async () => {
+    window.rakhiTrack('challenge_share_click', { channel: 'native', from: 'waiting' }, id);
+    if (navigator.share) await navigator.share({ title: 'Rakhi Battle 2026', text, url });
+    else await copyLink();
+  });
+
+  window.rakhiTrack('waiting_view', {}, id);
+  const timer = window.setInterval(async () => {
+    try {
+      const response = await fetch(`/api/challenges/${id}`);
+      if (!response.ok) return;
+      const data = await response.json() as { completed: boolean; sibling_progress: number };
+      if (data.completed) {
+        clearInterval(timer);
+        location.href = `/result/${id}?fresh=1`;
+        return;
+      }
+      const progress = Number(data.sibling_progress || 0);
+      root.querySelector<HTMLElement>('[data-wait-bar]')!.style.width = `${progress * 12.5}%`;
+      root.querySelector<HTMLElement>('[data-wait-title]')!.textContent = progress
+        ? `Your sibling has answered ${progress}/8`
+        : 'Invitation abhi khulna baaki hai';
+      root.querySelector<HTMLElement>('[data-wait-copy]')!.textContent = progress
+        ? 'The childhood archive is opening…'
+        : 'This page will update automatically after they begin.';
+    } catch {
+      // A temporary network failure should not interrupt the waiting page.
+    }
+  }, 5000);
+</script>

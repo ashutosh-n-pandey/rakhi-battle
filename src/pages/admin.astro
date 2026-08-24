@@ -19,6 +19,8 @@ import Layout from '../layouts/Layout.astro';
         <div data-sources></div>
         <h3 style="margin-top:24px">Referral generations</h3>
         <div data-generations></div>
+        <h3 style="margin-top:24px">Open support cases</h3>
+        <div data-support></div>
       </div>
     </section>
   </div>
@@ -38,6 +40,7 @@ import Layout from '../layouts/Layout.astro';
       events: Array<{ event_name: string; count: number; users: number }>;
       sources: Array<{ source: string; completed: number; battles: number }>;
       generations: Array<{ generation: number; completed: number; battles: number }>;
+      support: Array<{ id: string; category: string; email: string; challenge_id: string | null; message: string; created_at: string }>;
     };
     if (!response.ok) { status.textContent = data.error || 'Unauthorized.'; return; }
     status.textContent = '';
@@ -56,5 +59,18 @@ import Layout from '../layouts/Layout.astro';
     document.querySelector<HTMLElement>('[data-events]')!.innerHTML = data.events.map((row) => `<div class="bar-row"><div class="bar-head"><span>${row.event_name}</span><span>${row.count} events / ${row.users} users</span></div></div>`).join('');
     document.querySelector<HTMLElement>('[data-sources]')!.innerHTML = data.sources.map((row) => `<div class="bar-row"><div class="bar-head"><span>${row.source}</span><span>${row.completed}/${row.battles} complete</span></div></div>`).join('');
     document.querySelector<HTMLElement>('[data-generations]')!.innerHTML = data.generations.map((row) => `<div class="bar-row"><div class="bar-head"><span>Generation ${row.generation}</span><span>${row.completed}/${row.battles} complete</span></div></div>`).join('');
+    const supportRoot = document.querySelector<HTMLElement>('[data-support]')!;
+    supportRoot.replaceChildren();
+    if (!data.support.length) {
+      const empty = document.createElement('p'); empty.className = 'muted'; empty.textContent = 'No open support cases.'; supportRoot.appendChild(empty);
+    } else {
+      data.support.forEach((row) => {
+        const article = document.createElement('article'); article.className = 'support-case';
+        const head = document.createElement('strong'); head.textContent = `RB-${row.id.slice(0, 8).toUpperCase()} • ${row.category} • ${row.created_at}`;
+        const email = document.createElement('a'); email.href = `mailto:${encodeURIComponent(row.email)}`; email.textContent = row.email;
+        const message = document.createElement('p'); message.textContent = row.message;
+        article.appendChild(head); article.appendChild(email); article.appendChild(message); supportRoot.appendChild(article);
+      });
+    }
   });
 </script>

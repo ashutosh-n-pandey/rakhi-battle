@@ -9,6 +9,8 @@ export const GET: APIRoute = async ({ params }) => {
     creator_name: challenge.creator_name,
     sibling_name: challenge.sibling_name,
     score: challenge.score,
+    sibling_progress: challenge.sibling_progress,
+    generation: challenge.generation,
     status: challenge.status,
     completed: challenge.status === 'complete',
   });

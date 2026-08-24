@@ -1,14 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
-  <defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="#4c0b25"/><stop offset="1" stop-color="#9b2450"/></linearGradient></defs>
-  <rect width="1080" height="1920" fill="url(#g)"/>
-  <circle cx="930" cy="180" r="360" fill="#ffd166" opacity=".13"/><circle cx="60" cy="1700" r="450" fill="#ffd166" opacity=".08"/>
-  <text x="72" y="120" fill="#ffd166" font-family="Arial,sans-serif" font-size="40" font-weight="900">RAKHI BATTLE 2026</text>
-  <text x="72" y="420" fill="#fff7e8" font-family="Arial,sans-serif" font-size="78" font-weight="900"><tspan x="72">MY SISTER SAYS</tspan><tspan x="72" dy="95">SHE KNOWS</tspan><tspan x="72" dy="95">EVERYTHING</tspan><tspan x="72" dy="95">ABOUT ME.</tspan></text>
-  <rect x="72" y="920" width="936" height="420" rx="54" fill="#fff7e8"/>
-  <text x="540" y="1065" text-anchor="middle" fill="#7d1538" font-family="Arial,sans-serif" font-size="52" font-weight="800">SHE SCORED</text>
-  <text x="540" y="1220" text-anchor="middle" fill="#4c0b25" font-family="Arial,sans-serif" font-size="170" font-weight="950">3 / 8</text>
-  <text x="540" y="1295" text-anchor="middle" fill="#7d1538" font-family="Arial,sans-serif" font-size="34" font-weight="900">THAT HURT.</text>
-  <text x="72" y="1535" fill="#ffd166" font-family="Arial,sans-serif" font-size="68" font-weight="900"><tspan x="72">YOUR SIBLING</tspan><tspan x="72" dy="82">TALKS BIG TOO?</tspan></text>
-  <rect x="72" y="1740" width="936" height="112" rx="32" fill="#ffd166"/>
-  <text x="540" y="1812" text-anchor="middle" fill="#4c0b25" font-family="Arial,sans-serif" font-size="42" font-weight="900">CHALLENGE YOURS FREE →</text>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <defs><clipPath id="photo"><rect width="1080" height="760" rx="0"/></clipPath><linearGradient id="shade" x2="0" y2="1"><stop offset=".55" stop-color="#4c0b25" stop-opacity="0"/><stop offset="1" stop-color="#4c0b25"/></linearGradient><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#4c0b25"/><stop offset="1" stop-color="#9b2450"/></linearGradient></defs>
+  <rect y="700" width="1080" height="1220" fill="url(#bg)"/><rect width="1080" height="820" fill="url(#shade)"/>
+  <text x="72" y="100" fill="#ffd166" font-family="Arial" font-size="38" font-weight="900">RAKHI BATTLE 2026</text>
+  <text x="72" y="920" fill="#fff7e8" font-family="Arial" font-size="76" font-weight="900"><tspan x="72">HAR RAKHI KE</tspan><tspan x="72" dy="92">DHAAGE MEIN</tspan><tspan x="72" dy="92" fill="#ffd166">EK POORA BACHPAN</tspan><tspan x="72" dy="92">BANDHA HOTA HAI.</tspan></text>
+  <text x="72" y="1415" fill="#ffe4ec" font-family="Arial" font-size="43" font-weight="700"><tspan x="72">Mummy ki daant. Remote ki ladai.</tspan><tspan x="72" dy="62">Chhupayi hui mithai.</tspan></text>
+  <text x="72" y="1635" fill="#ffd166" font-family="Arial" font-size="54" font-weight="900">EK HI BACHPAN. KAHAANIYAN DO.</text>
+  <rect x="72" y="1740" width="936" height="112" rx="32" fill="#ffd166"/><text x="540" y="1812" text-anchor="middle" fill="#4c0b25" font-family="Arial" font-size="40" font-weight="900">8 MEMORIES • PLAY FREE →</text>
 </svg>

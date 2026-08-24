@@ -8,14 +8,14 @@ const challenge = await getChallenge(id);
 if (!challenge) return Astro.redirect('/?invalid=1');
 if (challenge.status === 'complete') return Astro.redirect(`/result/${id}`);
 const title = `${challenge.creator_name} challenged you — Rakhi Battle 2026`;
-const description = `${challenge.creator_name} says you don't know them that well. Prove them wrong in 60 seconds.`;
+const description = `${challenge.creator_name} remembers your childhood differently. Open the same eight memories and compare your Rakhi stories.`;
 ---
 <Layout title={title} description={description} noindex>
   <div class="shell">
     <section class="hero" style="padding-top: 24px">
-      <p class="eyebrow">🪔 A festive sibling summons has arrived</p>
-      <h1><span>{challenge.creator_name}</span> thinks they know the truth.</h1>
-      <p class="hero-copy">8 questions. One Rakhi match score. Mithai afterwards—arguments first.</p>
+      <p class="eyebrow">🪔 A Rakhi memory has arrived</p>
+      <h1><span>{challenge.creator_name}</span> remembers your bachpan differently.</h1>
+      <p class="hero-copy">8 sawaal. Do kahaaniyan. One festive sibling score.</p>
     </section>
     <QuizGame
       role="sibling"

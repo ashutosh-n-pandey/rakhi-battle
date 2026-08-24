@@ -17,6 +17,7 @@ export interface ChallengeRow {
   parent_challenge_id: string | null;
   root_challenge_id: string | null;
   generation: number;
+  sibling_progress: number;
   expires_at: string;
 }
 
@@ -44,7 +45,8 @@ export async function getChallenge(id: string): Promise<ChallengeRow | null> {
     `SELECT id, creator_name, sibling_name, creator_answers, sibling_answers,
             score, result_json, status, leaderboard_creator_opt_in,
             leaderboard_sibling_opt_in, creator_session_id,
-            parent_challenge_id, root_challenge_id, generation, expires_at
+            parent_challenge_id, root_challenge_id, generation,
+            sibling_progress, expires_at
        FROM challenges
       WHERE id = ? AND expires_at > CURRENT_TIMESTAMP`
   ).bind(id).first<ChallengeRow>();

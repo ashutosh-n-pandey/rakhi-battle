@@ -26,4 +26,10 @@ describe('Rakhi Battle scoring', () => {
     expect(isAnswers({ ...all('creator'), mummy: 'hacker' })).toBe(false);
     expect(isAnswers(all('both'))).toBe(true);
   });
+
+  it('keeps a zero-match result affectionate', () => {
+    const result = computeResult(all('creator'), all('sibling'));
+    expect(result.verdict).toBe('Two stories, one unbreakable team');
+    expect(result.subline).not.toMatch(/do you.*talk|weak|fail/i);
+  });
 });

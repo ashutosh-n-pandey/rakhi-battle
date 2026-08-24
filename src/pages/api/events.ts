@@ -6,7 +6,8 @@ const allowed = new Set([
   'challenge_open', 'challenge_complete', 'pair_result_view', 'poster_download',
   'poster_share', 'family_court_create', 'family_court_vote', 'new_battle_from_vote',
   'savage_checkout_start', 'savage_purchase', 'full_reveal_checkout_start',
-  'full_reveal_purchase', 'gift_click',
+  'full_reveal_purchase', 'gift_click', 'waiting_view', 'premium_poster_download',
+  'certificate_download', 'repeat_battle_click', 'support_submit',
 ]);
 
 export const POST: APIRoute = async ({ request }) => {

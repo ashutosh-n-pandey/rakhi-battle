@@ -18,6 +18,7 @@ export const POST: APIRoute = async ({ request, params }) => {
       `UPDATE challenges
           SET sibling_name = ?, sibling_answers = ?, score = ?, result_json = ?,
               leaderboard_sibling_opt_in = ?, status = 'complete',
+              sibling_progress = 8,
               completed_at = CURRENT_TIMESTAMP
         WHERE id = ? AND status = 'open'`
     ).bind(

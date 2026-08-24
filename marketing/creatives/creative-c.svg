@@ -1,13 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
-  <defs><linearGradient id="g" x2="0" y2="1"><stop stop-color="#ffd166"/><stop offset=".48" stop-color="#fff7e8"/><stop offset="1" stop-color="#f6dfe7"/></linearGradient></defs>
-  <rect width="1080" height="1920" fill="url(#g)"/>
-  <text x="540" y="120" text-anchor="middle" fill="#7d1538" font-family="Arial,sans-serif" font-size="40" font-weight="900">RAKHI BATTLE 2026</text>
-  <text x="540" y="430" text-anchor="middle" fill="#241117" font-family="Arial,sans-serif" font-size="94" font-weight="950"><tspan x="540">SEND THIS</tspan><tspan x="540" dy="112">TO YOUR</tspan><tspan x="540" dy="112" fill="#7d1538">SIBLING</tspan></text>
-  <path d="M120 820h840" stroke="#7d1538" stroke-width="12" stroke-linecap="round"/>
-  <circle cx="540" cy="820" r="100" fill="#ffd166" stroke="#7d1538" stroke-width="16"/>
-  <circle cx="540" cy="820" r="43" fill="#7d1538"/>
-  <text x="540" y="1110" text-anchor="middle" fill="#7d1538" font-family="Arial,sans-serif" font-size="76" font-weight="950"><tspan x="540">IF THEY'RE</tspan><tspan x="540" dy="95">BRAVE ENOUGH.</tspan></text>
-  <g font-family="Arial,sans-serif" font-size="36" font-weight="800" fill="#4c0b25"><text x="150" y="1395">01  WINNER / LOSER</text><text x="150" y="1470">02  FREE STATUS POSTER</text><text x="150" y="1545">03  FAMILY COURT VOTE</text></g>
-  <rect x="82" y="1740" width="916" height="112" rx="32" fill="#7d1538"/>
-  <text x="540" y="1812" text-anchor="middle" fill="#fff7e8" font-family="Arial,sans-serif" font-size="42" font-weight="900">START THE BATTLE — FREE</text>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <defs><clipPath id="photo"><rect width="1080" height="800"/></clipPath><linearGradient id="shade" x2="0" y2="1"><stop offset=".58" stop-color="#7d1538" stop-opacity="0"/><stop offset="1" stop-color="#7d1538"/></linearGradient><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#7d1538"/><stop offset="1" stop-color="#d16666"/></linearGradient></defs>
+  <rect y="700" width="1080" height="1220" fill="url(#bg)"/><rect width="1080" height="860" fill="url(#shade)"/>
+  <text x="72" y="100" fill="#ffd166" font-family="Arial" font-size="38" font-weight="900">RAKHI BATTLE 2026</text>
+  <text x="540" y="990" text-anchor="middle" fill="#fff7e8" font-family="Arial" font-size="92" font-weight="900"><tspan x="540">SHEHAR ALAG.</tspan><tspan x="540" dy="112" fill="#ffd166">BACHPAN SAME.</tspan></text>
+  <text x="540" y="1300" text-anchor="middle" fill="#ffe4ec" font-family="Arial" font-size="44" font-weight="700"><tspan x="540">Is Rakhi, ek private link mein</tspan><tspan x="540" dy="64">woh yaadein ghar bhejo.</tspan></text>
+  <circle cx="540" cy="1525" r="120" fill="#ffd166"/><text x="540" y="1514" text-anchor="middle" fill="#4c0b25" font-family="Arial" font-size="72" font-weight="950">8</text><text x="540" y="1570" text-anchor="middle" fill="#4c0b25" font-family="Arial" font-size="27" font-weight="900">MEMORIES</text>
+  <rect x="72" y="1740" width="936" height="112" rx="32" fill="#fff7e8"/><text x="540" y="1812" text-anchor="middle" fill="#7d1538" font-family="Arial" font-size="40" font-weight="900">60 SECONDS • NO SIGNUP • FREE →</text>
 </svg>

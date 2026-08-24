@@ -14,12 +14,16 @@ When a person starts a new battle from a result or Family Court, the new challen
 | `challenge_complete` | Sibling result stored |
 | `pair_result_view` | Completed result viewed |
 | `poster_download` | PNG download invoked |
+| `premium_poster_download` / `certificate_download` | Paid keepsake downloaded |
 | `poster_share` | Native file share succeeds |
+| `waiting_view` | Creator opens the saved live waiting room |
+| `repeat_battle_click` | A completed pair starts another family challenge |
 | `family_court_create` | Court CTA opened |
 | `family_court_vote` | Vote stored |
 | `new_battle_from_vote` | Court voter starts own battle |
 | `savage_checkout_start` / `full_reveal_checkout_start` | Upgrade tapped |
 | `savage_purchase` / `full_reveal_purchase` | Server-verified payment returns success |
+| `support_submit` | Support case stored successfully |
 
 ## Core calculations
 

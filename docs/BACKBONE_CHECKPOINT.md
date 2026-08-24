@@ -1,33 +1,38 @@
-# Rakhi Battle backbone checkpoint
+# Rakhi Battle completion checkpoint
 
-This checkpoint prepares the existing product for the nine reviewed execution blocks without publishing a redesign or activating unfinished commercial features.
+Locked and implemented on 24 August 2026.
 
-## Included now
+## Product promise
 
-- Cloudflare D1 migrations resolve from the repository root in local commands and GitHub Actions.
-- The production D1 binding and actual Workers URL are pinned in configuration.
-- Anonymous referral lineage records parent challenge, root challenge and generation.
-- Parent attribution is consumed after one successful child battle so later unrelated battles are not incorrectly linked.
-- The operator dashboard can report visitors, viral coefficient, median transfer time, paid conversion, revenue and generation depth.
-- Paid entitlement rules live on the server: ₹49 Savage, ₹99 Full Reveal and ₹50 more when upgrading Savage to Full.
-- Automated tests cover entitlement pricing, and the build validates Cloudflare types and Astro routes.
+> Har Rakhi ke dhaage mein ek poora bachpan bandha hota hai.
 
-## Deliberately not activated
+> Ek hi bachpan. Do alag kahaaniyan.
 
-- No payment keys or publisher/ad accounts.
-- `PAYMENTS_ENABLED` remains `false`.
-- No new landing-page promise, final content, visual direction or poster/report design.
-- No public family-tree visualization.
-- No manual launch or feature activation; the repository's existing main-branch workflow may publish this backward-compatible foundation automatically.
+Rakhi Battle is a warm shared-childhood game with playful disagreement. It never asks siblings to prove love and never treats a low match score as a weak bond.
 
-## Nine blocks to review next
+## Complete in the repository
 
-0. External account gates
-1. Legal and payment readiness
-2. Copy and content freeze
-3. Core product and fun flow
-4. Paid fulfillment and UPI checkout
-5. Viral loop and tracking experience
-6. Launch creative kit
-7. Meta setup and controlled launch
-8. Final QA, deployment and launch operations
+- Eight-question no-login creator and sibling flow with browser draft recovery.
+- Private share link, saved waiting room and real 0–8 sibling progress.
+- Positive result at every score and all eight MATCH/OBJECTION rows for free.
+- Free 1080×1920 festive poster with both siblings in the artwork.
+- Optional ₹49 Savage and ₹99 Full deliverables, including the ₹50 Savage-to-Full upgrade.
+- Exact answers withheld from free API responses and shown only for Full Reveal.
+- Family Court, consent-based Hall of Fame and anonymous family-chain lineage.
+- Pricing, Contact, Privacy, Terms, Refund and Digital Delivery pages.
+- D1 support cases plus an admin view for open cases.
+- Tradition, humour and long-distance launch creatives with Story, Reel and Feed rendering.
+- Automated tests, Astro type checks, production build and Wrangler dry run.
+
+## Intentionally gated
+
+- `PAYMENTS_ENABLED` remains `false` until Razorpay KYC, live keys and end-to-end checkout testing are complete.
+- Meta ads remain manual and should not start until the payment/delivery flow is live-tested.
+- A public animated Rakhi family map and display advertising remain post-launch deferrals.
+
+## External owner actions
+
+1. Complete Razorpay KYC and website review.
+2. Add live Razorpay Worker secrets, test a real ₹49 purchase and only then enable payments.
+3. Choose the monitored public business/support identity required by the payment provider.
+4. Create/connect the Facebook Page, Instagram professional profile, ad account and billing method.

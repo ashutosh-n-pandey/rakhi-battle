@@ -1,49 +1,92 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { displayAnswer, getWinnerName, questions, savageVerdict } from '../../lib/game';
-import { battleCode, getChallenge, paidTier, parseAnswers, parseResult } from '../../lib/server';
+import { bondTitle, chainTitle, displayAnswer, getWinnerName, questions, savageVerdict } from '../../lib/game';
+import { battleCode, db, getChallenge, paidTier, parseAnswers, parseResult } from '../../lib/server';
 
 const id = Astro.params.id ?? '';
 const challenge = await getChallenge(id);
 if (!challenge) return Astro.redirect('/?expired=1');
-if (challenge.status !== 'complete' || !challenge.sibling_name || !challenge.result_json) return Astro.redirect(`/battle/${id}`);
-const creatorAnswers = parseAnswers(challenge.creator_answers);
+if (challenge.status !== 'complete' || !challenge.sibling_name || !challenge.sibling_answers || !challenge.result_json) {
+  return Astro.redirect(`/battle/${id}`);
+}
+
 const siblingName = challenge.sibling_name;
 const result = parseResult(challenge.result_json);
 const tier = await paidTier(id);
 const winner = getWinnerName(result, challenge.creator_name, siblingName);
+const title = bondTitle(result);
+const creatorAnswers = tier === 'full' ? parseAnswers(challenge.creator_answers) : null;
+const siblingAnswers = tier === 'full' ? parseAnswers(challenge.sibling_answers) : null;
+const comparisons = questions.map((question) => ({
+  ...question,
+  matched: result.agreements.includes(question.key),
+  creator: creatorAnswers ? displayAnswer(creatorAnswers[question.key], challenge.creator_name, siblingName) : null,
+  sibling: siblingAnswers ? displayAnswer(siblingAnswers[question.key], challenge.creator_name, siblingName) : null,
+}));
+const rootId = challenge.root_challenge_id || id;
+const familyCount = await db().prepare(
+  `SELECT COUNT(*) AS total FROM challenges
+    WHERE (root_challenge_id = ? OR id = ?) AND status = 'complete' AND expires_at > CURRENT_TIMESTAMP`
+).bind(rootId, rootId).first<{ total: number }>();
+const chainSize = Number(familyCount?.total || 1);
+const familyCrown = chainSize >= 3;
 const posterData = {
   id,
   creator: challenge.creator_name,
   sibling: siblingName,
   winner,
   percent: result.percent,
+  matches: result.matches,
   verdict: result.verdict,
-  mummy: displayAnswer(creatorAnswers.mummy, challenge.creator_name, siblingName),
-  drama: displayAnswer(creatorAnswers.drama, challenge.creator_name, siblingName),
-  caring: displayAnswer(creatorAnswers.caring, challenge.creator_name, siblingName),
+  subline: result.subline,
+  bondTitle: title,
+  savage: savageVerdict(result, challenge.creator_name, siblingName),
+  chainTitle: chainTitle(challenge.generation),
+  chainSize,
 };
 ---
 <Layout
-  title={`${challenge.creator_name} vs ${siblingName}: ${result.percent}% Rakhi match`}
-  description={`${winner} wins this Rakhi Battle. Think your sibling can beat ${result.percent}%?`}
+  title={`${challenge.creator_name} × ${siblingName}: ${result.percent}% Rakhi Battle`}
+  description="Ek hi bachpan. Do alag kahaaniyan. See this sibling pair's Rakhi Battle verdict."
   noindex
 >
-  <div class="shell">
+  <div class="shell result-page">
     <section class="card result-hero" data-result-memory data-id={id} data-name={`${challenge.creator_name} × ${siblingName}`}>
       <p class="eyebrow">🪔 The Rakhi verdict is here</p>
-      <h2>{challenge.creator_name} <span class="muted">vs</span> {siblingName}</h2>
+      <h2>{challenge.creator_name} <span class="muted">×</span> {siblingName}</h2>
       <div class="score-ring" style={`--score:${result.percent * 3.6}deg`}><strong>{result.percent}%</strong></div>
-      <span class="winner-pill">🏆 {winner} {result.winner === 'both' ? 'share the shagun' : 'wins the shagun'}</span>
-      <h3 style="font-size:1.8rem;margin-top:18px">{result.verdict}</h3>
+      <span class="winner-pill">🏵️ {title}</span>
+      <h3 class="result-verdict">{result.verdict}</h3>
       <p class="muted">{result.subline}</p>
-
-      <div class="result-grid">
-        <div class="result-item"><span>Mummy's favourite</span><strong>{posterData.mummy}</strong></div>
-        <div class="result-item"><span>Drama champion</span><strong>{posterData.drama}</strong></div>
-        <div class="result-item"><span>Secretly caring</span><strong>{posterData.caring}</strong></div>
-        <div class="result-item"><span>Agreed on</span><strong>{result.matches} / {result.total}</strong></div>
+      <div class="result-grid compact-result-grid">
+        <div class="result-item"><span>Same memories</span><strong>{result.matches} / {result.total}</strong></div>
+        <div class="result-item"><span>Different versions</span><strong>{result.total - result.matches} / {result.total}</strong></div>
       </div>
+    </section>
+
+    <section class="card reveal-card">
+      <p class="eyebrow">All 8 moments</p>
+      <h2>Where your stories matched—and where they didn’t.</h2>
+      <p class="muted">The free result shows only MATCH or OBJECTION. Your exact private choices stay hidden unless Full Reveal is unlocked for this battle.</p>
+      <div class="comparison-list">
+        {comparisons.map((item, index) => (
+          <article class:list={['comparison-row', item.matched ? 'is-match' : 'is-objection']}>
+            <span class="comparison-number">{index + 1}</span>
+            <span><b>{item.emoji} {item.short}</b><small>{item.matched ? 'Same memory' : 'Two versions of the story'}</small></span>
+            <strong>{item.matched ? 'MATCH' : 'OBJECTION'}</strong>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="chain-card">
+      <div>
+        <p class="eyebrow">🧵 Your Rakhi Chain</p>
+        <h2>{posterData.chainTitle}</h2>
+        <p>{chainSize} completed {chainSize === 1 ? 'battle' : 'battles'} in this family chain. Challenge another sibling or cousin to grow it.</p>
+      </div>
+      {familyCrown && <div class="family-crown" aria-label="Family Crown unlocked"><span>👑</span><b>Family Crown</b></div>}
+      <a class="btn btn-gold" href={`/?ref=chain&parent=${id}`} data-repeat>Grow the chain</a>
     </section>
 
     {challenge.leaderboard_creator_opt_in === 1 && challenge.leaderboard_sibling_opt_in === 1 && (
@@ -54,63 +97,97 @@ const posterData = {
       </a>
     )}
 
-    <section class="card" style="margin-top:16px;text-align:center">
-      <p class="eyebrow">Your free festive Story poster</p>
-      <h2>Give the family group chat some masala.</h2>
-      <p class="muted">A bright Rakhi keepsake, made for WhatsApp Status and Instagram Story.</p>
-      <div class="poster-preview"><canvas data-poster width="1080" height="1920"></canvas></div>
+    <section class="card poster-section">
+      <p class="eyebrow">Included free • 1080 × 1920</p>
+      <h2>Your festive Story poster</h2>
+      <p class="muted">A bright Rakhi keepsake for WhatsApp Status and Instagram Story. No watermark across your faces.</p>
+      <div class="poster-preview"><canvas data-canvas="free" width="1080" height="1920"></canvas></div>
       <div class="share-actions">
-        <button class="btn btn-primary" data-poster-share>Share poster</button>
-        <button class="btn btn-gold" data-poster-download>Download</button>
+        <button class="btn btn-primary" data-share="free">Share poster</button>
+        <button class="btn btn-gold" data-download="free">Download free</button>
       </div>
-      <p class="status" data-poster-status></p>
+      <p class="status" data-download-status></p>
     </section>
 
-    <a class="court-banner" style="display:block;text-decoration:none" href={`/court/${id}?ref=family_court&utm_source=family_court&utm_campaign=rakhi2026`} data-court-link>
-      <p class="eyebrow" style="color:#ffd166">⚖️ Family Court</p>
-      <h3 style="font-size:1.8rem">Mithai is sweet. This dispute is not.</h3>
+    <a class="court-banner" href={`/court/${id}?ref=family_court&utm_source=family_court&utm_campaign=rakhi2026`} data-court-link>
+      <p class="eyebrow">⚖️ Family Court</p>
+      <h3>Mithai is sweet. This dispute is not.</h3>
       <p>Summon cousins, friends and family to vote →</p>
     </a>
 
     <section class="card premium">
-      <p class="eyebrow">Optional upgrades</p>
-      {tier ? (
+      <p class="eyebrow">Optional keepsake upgrades</p>
+      {tier === null && (
         <>
-          <h2>{tier === 'full' ? 'Full Reveal unlocked' : 'Savage Mode unlocked'} ✨</h2>
-          <p>{savageVerdict(result, challenge.creator_name, siblingName)}</p>
-          {tier === 'full' && (
-            <div class="result-grid">
-              {questions.map((question) => (
-                <div class="result-item">
-                  <span>{question.short}</span>
-                  <strong>{displayAnswer(creatorAnswers[question.key], challenge.creator_name, siblingName)}</strong>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
-      ) : (
-        <>
-          <h2>How much truth can you handle?</h2>
+          <h2>The game is complete. Choose only if you want more.</h2>
+          <p class="muted">One payment unlocks the keepsake for this battle—both siblings can use the same result link.</p>
           <div class="premium-grid">
             <article class="premium-tier">
-              <b>SAVAGE MODE</b><div class="price">₹49</div>
-              <p>Extra savage verdict + premium poster theme.</p>
-              <button class="btn btn-ghost btn-block" data-buy="savage">Unlock</button>
+              <span class="tier-badge">SAVAGE</span><div class="price">₹49</div>
+              <p>Playful savage verdict, bond title and premium Story poster.</p>
+              <button class="btn btn-ghost btn-block" data-buy="savage">Unlock Savage</button>
             </article>
-            <article class="premium-tier">
-              <b>FULL REVEAL</b><div class="price">₹99</div>
-              <p>All 8 category truths + Savage Mode + certificate.</p>
-              <button class="btn btn-primary btn-block" data-buy="full">Reveal all</button>
+            <article class="premium-tier featured-tier">
+              <span class="tier-badge">FULL REVEAL</span><div class="price">₹99</div>
+              <p>All 8 exact answer pairs, Savage, sentimental poster and certificate.</p>
+              <button class="btn btn-primary btn-block" data-buy="full">Unlock Full</button>
             </article>
           </div>
+          <p class="checkout-note">Payments open after secure checkout activation. The free game and poster always remain available.</p>
           <p class="status" data-pay-status></p>
         </>
       )}
+
+      {(tier === 'savage' || tier === 'full') && (
+        <section class="unlocked-block">
+          <span class="unlock-stamp">UNLOCKED</span>
+          <h2>{title}</h2>
+          <blockquote>{posterData.savage}</blockquote>
+          <p class="muted">Savage on the game, soft on the bond.</p>
+          <div class="poster-preview premium-poster"><canvas data-canvas="savage" width="1080" height="1920"></canvas></div>
+          <div class="share-actions">
+            <button class="btn btn-primary" data-share="savage">Share premium</button>
+            <button class="btn btn-gold" data-download="savage">Download premium</button>
+          </div>
+          {tier === 'savage' && (
+            <div class="upgrade-strip">
+              <span><b>Want every exact answer + certificate?</b><small>You already paid ₹49.</small></span>
+              <button class="btn btn-primary" data-buy="full">Upgrade for ₹50</button>
+            </div>
+          )}
+        </section>
+      )}
+
+      {tier === 'full' && creatorAnswers && siblingAnswers && (
+        <section class="full-reveal">
+          <p class="eyebrow">Full Reveal • private to this link</p>
+          <h2>Your two versions, side by side.</h2>
+          <div class="exact-list">
+            {comparisons.map((item) => (
+              <article class="exact-row">
+                <header><span>{item.emoji}</span><b>{item.short}</b><em>{item.matched ? 'MATCH' : 'OBJECTION'}</em></header>
+                <div><span>{challenge.creator_name}<strong>{item.creator}</strong></span><span>{siblingName}<strong>{item.sibling}</strong></span></div>
+              </article>
+            ))}
+          </div>
+          <h3 class="keepsake-heading">Two more keepsakes, included</h3>
+          <div class="keepsake-grid">
+            <article>
+              <div class="poster-preview"><canvas data-canvas="sentimental" width="1080" height="1920"></canvas></div>
+              <button class="btn btn-gold btn-block" data-download="sentimental">Download sentimental poster</button>
+            </article>
+            <article>
+              <div class="certificate-preview"><canvas data-canvas="certificate" width="1600" height="1131"></canvas></div>
+              <button class="btn btn-primary btn-block" data-download="certificate">Download certificate</button>
+            </article>
+          </div>
+        </section>
+      )}
     </section>
 
-    <div class="action-stack" style="margin-top:16px">
-      <a class="btn btn-ghost" href={`/?ref=result_replay&parent=${id}`} data-new-battle>Now make your own battle</a>
+    <div class="action-stack result-actions">
+      <a class="btn btn-primary" href={`/?ref=result_replay&parent=${id}`} data-repeat>Challenge another sibling</a>
+      <a class="btn btn-ghost" href="/leaderboard">Visit Hall of Fame</a>
     </div>
   </div>
 </Layout>
@@ -118,207 +195,112 @@ const posterData = {
 <script>
   import { rememberBattle } from '../../lib/recent';
   const memory = document.querySelector<HTMLElement>('[data-result-memory]');
-  if (memory?.dataset.id && memory.dataset.name) {
-    rememberBattle({ id: memory.dataset.id, name: memory.dataset.name, role: 'viewer' });
-  }
+  if (memory?.dataset.id && memory.dataset.name) rememberBattle({ id: memory.dataset.id, name: memory.dataset.name, role: 'viewer' });
 </script>
 
 <script is:inline define:vars={{ posterData, id }}>
-  const canvas = document.querySelector('[data-poster]');
-  const ctx = canvas.getContext('2d');
+  const canvases = Object.fromEntries(Array.from(document.querySelectorAll('[data-canvas]')).map((canvas) => [canvas.dataset.canvas, canvas]));
 
-  function fitText(text, maxWidth, startSize, weight = 900) {
-    let size = startSize;
-    do {
-      ctx.font = `${weight} ${size}px Arial, sans-serif`;
-      size -= 2;
-    } while (ctx.measureText(text).width > maxWidth && size > 44);
+  function rounded(ctx, x, y, width, height, radius) {
+    ctx.beginPath(); ctx.roundRect(x, y, width, height, radius); ctx.fill();
   }
 
-  async function drawPoster() {
-    const w = canvas.width;
-    const h = canvas.height;
-    const gradient = ctx.createLinearGradient(0, 0, w, h);
-    gradient.addColorStop(0, '#4c0b25');
-    gradient.addColorStop(.58, '#7d1538');
-    gradient.addColorStop(1, '#a32950');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, w, h);
+  function fit(ctx, text, maxWidth, startSize, weight = 900) {
+    let size = startSize;
+    do { ctx.font = `${weight} ${size}px Arial, sans-serif`; size -= 2; } while (ctx.measureText(text).width > maxWidth && size > 34);
+  }
 
-    const art = new Image();
-    art.src = '/images/rakhi-celebration.webp';
+  async function addArt(ctx, width, height) {
+    const art = new Image(); art.src = '/images/rakhi-celebration.webp';
     try {
       await art.decode();
-      const frameHeight = 345;
-      const scale = Math.max(w / art.naturalWidth, frameHeight / art.naturalHeight);
-      const sourceWidth = w / scale;
-      const sourceHeight = frameHeight / scale;
-      const sourceX = Math.max(0, (art.naturalWidth - sourceWidth) * .67);
-      const sourceY = Math.max(0, (art.naturalHeight - sourceHeight) * .42);
-      ctx.drawImage(art, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, w, frameHeight);
-      const artShade = ctx.createLinearGradient(0, 0, 0, frameHeight);
-      artShade.addColorStop(0, 'rgba(76,11,37,.28)');
-      artShade.addColorStop(.65, 'rgba(76,11,37,.52)');
-      artShade.addColorStop(1, '#4c0b25');
-      ctx.fillStyle = artShade;
-      ctx.fillRect(0, 0, w, frameHeight + 2);
-    } catch {
-      // The poster remains fully usable if the decorative image cannot load.
-    }
+      const scale = Math.max(width / art.naturalWidth, height / art.naturalHeight);
+      const sw = width / scale; const sh = height / scale;
+      ctx.drawImage(art, Math.max(0, art.naturalWidth - sw), Math.max(0, (art.naturalHeight - sh) / 2), sw, sh, 0, 0, width, height);
+    } catch {}
+  }
 
-    ctx.globalAlpha = .12;
-    ctx.fillStyle = '#ffd166';
-    for (let y = -80; y < h; y += 210) {
-      for (let x = -80; x < w; x += 210) {
-        ctx.beginPath();
-        ctx.arc(x + ((y / 210) % 2) * 90, y, 56, 0, Math.PI * 2);
-        ctx.strokeStyle = '#ffd166';
-        ctx.lineWidth = 5;
-        ctx.stroke();
+  async function drawStory(canvas, mode) {
+    const ctx = canvas.getContext('2d'); const w = canvas.width; const h = canvas.height;
+    const colors = mode === 'savage' ? ['#241117', '#7d1538', '#d92f73'] : mode === 'sentimental' ? ['#7d1538', '#b96b73', '#f5b56b'] : ['#4c0b25', '#7d1538', '#a32950'];
+    const gradient = ctx.createLinearGradient(0, 0, w, h); colors.forEach((color, i) => gradient.addColorStop(i / 2, color)); ctx.fillStyle = gradient; ctx.fillRect(0, 0, w, h);
+    await addArt(ctx, w, 470);
+    const shade = ctx.createLinearGradient(0, 180, 0, 530); shade.addColorStop(0, 'rgba(76,11,37,.06)'); shade.addColorStop(1, colors[0]); ctx.fillStyle = shade; ctx.fillRect(0, 0, w, 560);
+    ctx.textAlign = 'center'; ctx.fillStyle = '#ffd166'; ctx.font = '900 52px Arial'; ctx.fillText(mode === 'sentimental' ? 'RAKHI KEEPSAKE 2026' : 'RAKHI BATTLE 2026', w / 2, 92);
+    ctx.fillStyle = '#fff7e8'; fit(ctx, posterData.creator.toUpperCase(), 900, 102); ctx.fillText(posterData.creator.toUpperCase(), w / 2, 570);
+    ctx.fillStyle = '#ffd166'; ctx.font = '900 52px Arial'; ctx.fillText('×', w / 2, 650);
+    ctx.fillStyle = '#fff7e8'; fit(ctx, posterData.sibling.toUpperCase(), 900, 102); ctx.fillText(posterData.sibling.toUpperCase(), w / 2, 750);
+    if (mode === 'sentimental') {
+      ctx.fillStyle = 'rgba(255,247,232,.13)'; rounded(ctx, 90, 880, 900, 560, 34);
+      ctx.fillStyle = '#ffd166'; ctx.font = '900 48px Arial'; ctx.fillText('EK HI BACHPAN.', w / 2, 1010); ctx.fillText('DO ALAG KAHAANIYAN.', w / 2, 1080);
+      ctx.fillStyle = '#fff7e8'; ctx.font = '700 42px Arial';
+      ['Har Rakhi ke dhaage mein', 'ek poora bachpan', 'bandha hota hai.'].forEach((line, i) => ctx.fillText(line, w / 2, 1215 + i * 62));
+      ctx.fillStyle = '#ffd166'; fit(ctx, posterData.bondTitle.toUpperCase(), 870, 62); ctx.fillText(posterData.bondTitle.toUpperCase(), w / 2, 1570);
+    } else {
+      ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(w / 2, 1050, 176, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#4c0b25'; ctx.font = '950 124px Arial'; ctx.fillText(`${posterData.percent}%`, w / 2, 1082);
+      ctx.font = '800 30px Arial'; ctx.fillText('SHARED MEMORIES', w / 2, 1140);
+      ctx.fillStyle = '#fff7e8'; fit(ctx, posterData.bondTitle.toUpperCase(), 860, 70); ctx.fillText(posterData.bondTitle.toUpperCase(), w / 2, 1370);
+      if (mode === 'savage') {
+        ctx.font = '700 35px Arial'; ctx.fillStyle = '#ffe8ef';
+        const words = posterData.savage.split(' '); const lines = []; let line = '';
+        words.forEach((word) => { const test = `${line} ${word}`.trim(); if (ctx.measureText(test).width > 830) { lines.push(line); line = word; } else line = test; }); lines.push(line);
+        lines.slice(0, 4).forEach((value, i) => ctx.fillText(value, w / 2, 1490 + i * 48));
+      } else {
+        ctx.fillStyle = '#fff7e8'; ctx.font = '700 38px Arial'; ctx.fillText(`${posterData.matches} SAME MEMORIES • ${8 - posterData.matches} PLOT TWISTS`, w / 2, 1490);
       }
     }
-    ctx.globalAlpha = 1;
-
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#ffd166';
-    ctx.font = '900 58px Arial, sans-serif';
-    ctx.fillText('RAKHI BATTLE 2026', w / 2, 145);
-
-    ctx.fillStyle = '#fff7e8';
-    fitText(posterData.creator.toUpperCase(), 850, 112);
-    ctx.fillText(posterData.creator.toUpperCase(), w / 2, 365);
-    ctx.fillStyle = '#ffd166';
-    ctx.font = '900 58px Arial, sans-serif';
-    ctx.fillText('VS', w / 2, 455);
-    ctx.fillStyle = '#fff7e8';
-    fitText(posterData.sibling.toUpperCase(), 850, 112);
-    ctx.fillText(posterData.sibling.toUpperCase(), w / 2, 565);
-
-    ctx.fillStyle = '#ffd166';
-    ctx.beginPath();
-    ctx.arc(w / 2, 830, 178, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#4c0b25';
-    ctx.font = '950 126px Arial, sans-serif';
-    ctx.fillText(`${posterData.percent}%`, w / 2, 865);
-    ctx.font = '800 34px Arial, sans-serif';
-    ctx.fillText('SIBLING MATCH', w / 2, 925);
-
-    ctx.fillStyle = '#fff7e8';
-    ctx.font = '800 34px Arial, sans-serif';
-    ctx.fillText('WINNER', w / 2, 1100);
-    ctx.fillStyle = '#ffd166';
-    fitText(posterData.winner.toUpperCase(), 880, 86);
-    ctx.fillText(posterData.winner.toUpperCase(), w / 2, 1190);
-
-    const rows = [
-      ["MUMMY'S FAVOURITE", posterData.mummy],
-      ['DRAMA CHAMPION', posterData.drama],
-      ['SECRETLY CARING', posterData.caring],
-    ];
-    rows.forEach(([label, value], i) => {
-      const y = 1360 + i * 115;
-      ctx.textAlign = 'left';
-      ctx.fillStyle = 'rgba(255,247,232,.72)';
-      ctx.font = '700 29px Arial, sans-serif';
-      ctx.fillText(label, 120, y);
-      ctx.textAlign = 'right';
-      ctx.fillStyle = '#fff7e8';
-      ctx.font = '900 35px Arial, sans-serif';
-      ctx.fillText(String(value).toUpperCase(), 960, y);
-      ctx.strokeStyle = 'rgba(255,209,102,.28)';
-      ctx.beginPath(); ctx.moveTo(120, y + 35); ctx.lineTo(960, y + 35); ctx.stroke();
-    });
-
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#ffd166';
-    ctx.font = '900 35px Arial, sans-serif';
-    ctx.fillText('THINK YOUR SIBLING CAN BEAT THIS?', w / 2, 1770);
-    ctx.fillStyle = '#fff7e8';
-    ctx.font = '800 31px Arial, sans-serif';
-    ctx.fillText(location.host.toUpperCase(), w / 2, 1825);
+    ctx.fillStyle = '#ffd166'; ctx.font = '900 32px Arial'; ctx.fillText('EK HI BACHPAN • DO ALAG KAHAANIYAN', w / 2, 1775);
+    ctx.fillStyle = '#fff7e8'; ctx.font = '800 28px Arial'; ctx.fillText(location.host.toUpperCase(), w / 2, 1830);
   }
 
-  const posterReady = drawPoster();
-
-  async function posterBlob() {
-    await posterReady;
-    return new Promise((resolve) => canvas.toBlob(resolve, 'image/png', .95));
+  function drawCertificate(canvas) {
+    const ctx = canvas.getContext('2d'); const w = canvas.width; const h = canvas.height;
+    ctx.fillStyle = '#fff7e8'; ctx.fillRect(0, 0, w, h); ctx.strokeStyle = '#7d1538'; ctx.lineWidth = 20; ctx.strokeRect(34, 34, w - 68, h - 68); ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 6; ctx.strokeRect(58, 58, w - 116, h - 116);
+    ctx.textAlign = 'center'; ctx.fillStyle = '#7d1538'; ctx.font = '900 46px Arial'; ctx.fillText('RAKHI BATTLE 2026', w / 2, 165);
+    ctx.fillStyle = '#241117'; ctx.font = '800 72px Georgia'; ctx.fillText('Certificate of Shared Childhood', w / 2, 290);
+    ctx.fillStyle = '#6e5d62'; ctx.font = '500 32px Arial'; ctx.fillText('proudly presented to', w / 2, 382);
+    ctx.fillStyle = '#7d1538'; fit(ctx, `${posterData.creator} × ${posterData.sibling}`, 1320, 98); ctx.fillText(`${posterData.creator} × ${posterData.sibling}`, w / 2, 500);
+    ctx.fillStyle = '#241117'; ctx.font = '700 38px Arial'; ctx.fillText(`for earning the bond title`, w / 2, 595);
+    ctx.fillStyle = '#f59e0b'; fit(ctx, posterData.bondTitle.toUpperCase(), 1240, 84); ctx.fillText(posterData.bondTitle.toUpperCase(), w / 2, 710);
+    ctx.fillStyle = '#7d1538'; ctx.font = '900 56px Arial'; ctx.fillText(`${posterData.percent}% shared memories`, w / 2, 820);
+    ctx.fillStyle = '#6e5d62'; ctx.font = '600 30px Arial'; ctx.fillText('Ek hi bachpan. Do alag kahaaniyan. Forever one team.', w / 2, 905);
+    ctx.fillStyle = '#7d1538'; ctx.beginPath(); ctx.arc(w / 2, 1010, 54, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#ffd166'; ctx.font = '900 34px Arial'; ctx.fillText('र', w / 2, 1022);
   }
 
-  window.rakhiTrack('pair_result_view', { score: posterData.percent }, id);
+  const ready = {};
+  Object.entries(canvases).forEach(([name, canvas]) => { ready[name] = name === 'certificate' ? Promise.resolve(drawCertificate(canvas)) : drawStory(canvas, name); });
+  window.rakhiTrack('pair_result_view', { score: posterData.percent, chain_size: posterData.chainSize }, id);
 
-  document.querySelector('[data-poster-download]')?.addEventListener('click', async () => {
-    const blob = await posterBlob();
-    const link = document.createElement('a');
-    link.download = `rakhi-battle-${posterData.creator}-vs-${posterData.sibling}.png`;
-    link.href = URL.createObjectURL(blob);
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(link.href), 2000);
-    window.rakhiTrack('poster_download', {}, id);
-  });
-
-  document.querySelector('[data-poster-share]')?.addEventListener('click', async () => {
-    const status = document.querySelector('[data-poster-status]');
-    const blob = await posterBlob();
-    const file = new File([blob], 'rakhi-battle-2026.png', { type: 'image/png' });
-    const url = `${location.origin}/result/${id}?ref=poster`;
-    if (navigator.share && navigator.canShare?.({ files: [file] })) {
-      await navigator.share({ files: [file], title: 'Rakhi Battle 2026', text: `Think your sibling can beat ${posterData.percent}%? ${url}` });
-      window.rakhiTrack('poster_share', { channel: 'native' }, id);
-    } else {
-      status.textContent = 'Download the poster, then add it to Status or Story.';
-      document.querySelector('[data-poster-download]')?.click();
-    }
-  });
-
+  async function blobFor(name) { await ready[name]; return new Promise((resolve) => canvases[name].toBlob(resolve, 'image/png', .95)); }
+  async function download(name) {
+    const blob = await blobFor(name); if (!blob) return;
+    const link = document.createElement('a'); link.download = `rakhi-battle-${name}-${posterData.creator}-and-${posterData.sibling}.png`; link.href = URL.createObjectURL(blob); link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+    window.rakhiTrack(name === 'free' ? 'poster_download' : name === 'certificate' ? 'certificate_download' : 'premium_poster_download', { type: name }, id);
+  }
+  document.querySelectorAll('[data-download]').forEach((button) => button.addEventListener('click', () => download(button.dataset.download)));
+  document.querySelectorAll('[data-share]').forEach((button) => button.addEventListener('click', async () => {
+    const name = button.dataset.share; const blob = await blobFor(name); if (!blob) return;
+    const file = new File([blob], 'rakhi-battle-2026.png', { type: 'image/png' }); const url = `${location.origin}/result/${id}?ref=poster`;
+    if (navigator.share && navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: 'Rakhi Battle 2026', text: `Ek hi bachpan. Do alag kahaaniyan. ${url}` }); window.rakhiTrack('poster_share', { channel: 'native', type: name }, id); }
+    else { document.querySelector('[data-download-status]').textContent = 'Poster downloaded—add it to WhatsApp Status or Instagram Story.'; await download(name); }
+  }));
   document.querySelector('[data-court-link]')?.addEventListener('click', () => window.rakhiTrack('family_court_create', {}, id));
-  document.querySelector('[data-new-battle]')?.addEventListener('click', () => window.rakhiTrack('battle_start', { from: 'result' }, id));
+  document.querySelectorAll('[data-repeat]').forEach((link) => link.addEventListener('click', () => window.rakhiTrack('repeat_battle_click', { from: 'result' }, id)));
 
   async function loadRazorpay() {
     if (window.Razorpay) return;
-    await new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = resolve;
-      script.onerror = reject;
-      document.head.append(script);
-    });
+    await new Promise((resolve, reject) => { const script = document.createElement('script'); script.src = 'https://checkout.razorpay.com/v1/checkout.js'; script.onload = resolve; script.onerror = reject; document.head.append(script); });
   }
-
   document.querySelectorAll('[data-buy]').forEach((button) => button.addEventListener('click', async () => {
-    const tier = button.dataset.buy;
-    const status = document.querySelector('[data-pay-status]');
-    status.textContent = 'Opening secure checkout…';
-    window.rakhiTrack(`${tier === 'full' ? 'full_reveal' : 'savage'}_checkout_start`, {}, id);
+    const requestedTier = button.dataset.buy; const status = button.closest('.premium')?.querySelector('[data-pay-status]'); if (status) status.textContent = 'Opening secure checkout…';
+    window.rakhiTrack(`${requestedTier === 'full' ? 'full_reveal' : 'savage'}_checkout_start`, {}, id);
     try {
-      const response = await fetch('/api/checkout/order', {
-        method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ challenge_id: id, tier }),
-      });
-      const order = await response.json();
-      if (!response.ok) throw new Error(order.error || 'Checkout unavailable');
-      await loadRazorpay();
-      const checkout = new window.Razorpay({
-        key: order.key_id,
-        amount: order.amount,
-        currency: 'INR',
-        order_id: order.order_id,
-        name: 'Rakhi Battle 2026',
-        description: tier === 'full' ? 'Full Reveal' : 'Savage Mode',
-        theme: { color: '#7d1538' },
-        handler: async (payment) => {
-          const verify = await fetch('/api/checkout/verify', {
-            method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payment),
-          });
-          if (!verify.ok) throw new Error('Payment verification failed');
-          window.rakhiTrack(`${tier === 'full' ? 'full_reveal' : 'savage'}_purchase`, { amount: order.amount }, id);
-          location.reload();
-        },
-      });
-      checkout.open();
-      status.textContent = '';
-    } catch (error) {
-      status.textContent = error instanceof Error ? error.message : 'Checkout unavailable.';
-    }
+      const response = await fetch('/api/checkout/order', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ challenge_id: id, tier: requestedTier }) });
+      const order = await response.json(); if (!response.ok) throw new Error(order.error || 'Checkout is not active yet.'); await loadRazorpay();
+      const checkout = new window.Razorpay({ key: order.key_id, amount: order.amount, currency: 'INR', order_id: order.order_id, name: 'Rakhi Battle 2026', description: requestedTier === 'full' ? (order.amount === 5000 ? 'Full Reveal upgrade' : 'Full Reveal') : 'Savage Mode', theme: { color: '#7d1538' }, handler: async (payment) => {
+        const verify = await fetch('/api/checkout/verify', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payment) }); if (!verify.ok) throw new Error('Payment verification failed'); window.rakhiTrack(`${requestedTier === 'full' ? 'full_reveal' : 'savage'}_purchase`, { amount: order.amount }, id); location.reload();
+      }}); checkout.open(); if (status) status.textContent = '';
+    } catch (error) { if (status) status.textContent = error instanceof Error ? error.message : 'Checkout unavailable.'; }
   }));
 </script>

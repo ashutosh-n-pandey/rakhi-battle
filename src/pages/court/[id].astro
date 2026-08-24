@@ -11,14 +11,14 @@ const courtQuestions = courtQuestionKeys.map((key) => questions.find((q) => q.ke
 ---
 <Layout
   title={`Family Court: ${challenge.creator_name} vs ${challenge.sibling_name}`}
-  description={`Vote now: who is more dramatic, more kanjoos and mummy's favourite?`}
+  description={`Join the family verdict: remote wars, drama, shagun and mummy's favourite.`}
   noindex
 >
   <div class="shell">
     <section class="hero" style="padding-top:22px">
       <p class="eyebrow">Family Court is in session</p>
       <h1>{challenge.creator_name} <span>vs {challenge.sibling_name}</span></h1>
-      <p class="hero-copy">They disagree. Your vote is now evidence.</p>
+      <p class="hero-copy">Dono ki kahaani alag hai. Ab family apna version batayegi.</p>
     </section>
 
     <section class="card" data-court data-id={id} data-creator={challenge.creator_name} data-sibling={challenge.sibling_name}>
@@ -34,7 +34,7 @@ const courtQuestions = courtQuestionKeys.map((key) => questions.find((q) => q.ke
             </div>
           </div>
         ))}
-        <button class="btn btn-primary btn-block" data-submit-vote disabled>Submit verdict</button>
+        <button class="btn btn-primary btn-block" data-submit-vote disabled>Apna family verdict bhejo</button>
         <p class="status error" data-court-status></p>
       </div>
       <div class="hidden" data-results-screen>

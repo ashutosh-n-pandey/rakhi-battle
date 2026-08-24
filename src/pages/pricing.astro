@@ -1,0 +1,20 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { env } from 'cloudflare:workers';
+const paymentsEnabled = String(env.PAYMENTS_ENABLED) === 'true';
+---
+<Layout title="Pricing — Rakhi Battle 2026" description="The core Rakhi Battle and festive poster are free. Optional one-time keepsake upgrades cost ₹49 or ₹99.">
+  <article class="shell legal pricing-page">
+    <p class="eyebrow">Clear, one-time pricing</p>
+    <h1>Play free. Pay only for extra keepsakes.</h1>
+    <p class="legal-lead">No subscription, no account and no charge to finish the eight-question battle.</p>
+    <div class="pricing-grid">
+      <section class="price-card"><span>FREE</span><h2>₹0</h2><ul><li>Complete eight shared-childhood questions</li><li>Overall score and warm bond title</li><li>All eight MATCH/OBJECTION results</li><li>Free 1080 × 1920 Story poster</li><li>Family Court, Rakhi Chain and Hall of Fame</li></ul><a class="btn btn-primary btn-block" href="/#play">Start free</a></section>
+      <section class="price-card"><span>SAVAGE</span><h2>₹49</h2><ul><li>Everything in Free</li><li>Playful savage verdict</li><li>Premium Story poster</li><li>Bond-title keepsake</li></ul></section>
+      <section class="price-card featured-price"><span>FULL REVEAL</span><h2>₹99</h2><ul><li>Everything in Savage</li><li>Both exact answers for all eight moments</li><li>Sentimental Story poster</li><li>Downloadable certificate</li><li>Upgrade from Savage for ₹50</li></ul></section>
+    </div>
+    <div class="notice"><b>Checkout status:</b> {paymentsEnabled ? 'Secure one-time checkout is available from a completed battle result.' : 'Optional payments remain unavailable until the secure payment account is activated. The free game and poster work without payment.'}</div>
+    <h2>One battle, both siblings</h2>
+    <p>An upgrade belongs to the battle, not one person. After verified payment, both siblings can open the same private result link and use the unlocked keepsakes.</p>
+  </article>
+</Layout>

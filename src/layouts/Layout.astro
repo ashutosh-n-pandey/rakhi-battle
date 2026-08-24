@@ -9,8 +9,8 @@ interface Props {
 }
 
 const {
-  title = 'Rakhi Battle 2026 — Who really knows whom?',
-  description = 'You say your sibling knows you. Prove it in 60 seconds.',
+  title = 'Rakhi Battle 2026 — Ek hi bachpan. Do alag kahaaniyan.',
+  description = 'Open eight shared memories, compare two childhood stories and make a festive Rakhi poster—free, private and without signup.',
   image = '/images/rakhi-share.webp',
   noindex = false,
 } = Astro.props;
@@ -51,7 +51,7 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin);
     <main><slot /></main>
     <footer>
       <p>Made with mithai, mischief and sibling pyaar. No accounts. No phone numbers.</p>
-      <nav><a href="/leaderboard">Hall of Fame</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></nav>
+      <nav><a href="/pricing">Pricing</a><a href="/delivery">Delivery</a><a href="/refund">Refunds</a><a href="/contact">Support</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></nav>
     </footer>
     <script is:inline>
       (() => {

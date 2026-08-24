@@ -5,23 +5,24 @@ import QuizGame from '../components/QuizGame.astro';
 <Layout>
   <div class="shell wide-shell">
     <section class="festival-strip" aria-label="Raksha Bandhan celebration">
-      <span>शुभ रक्षाबंधन</span><i>✦</i><span>28 August 2026</span><i>✦</i><span>Pyaar bhi • proof bhi</span>
+      <span>शुभ रक्षाबंधन</span><i>✦</i><span>28 August 2026</span><i>✦</i><span>Ek dhaaga • poora bachpan</span>
     </section>
 
     <section class="hero festive-hero">
       <div class="hero-content">
-        <p class="eyebrow">🪔 Free Rakhi game • 8 questions • no signup</p>
-        <h1>Iss Rakhi, pyaar bhi. <span>Proof bhi.</span></h1>
-        <p class="hero-copy">Tie the thread, pass the mithai—and find out whether your sibling actually knows you. One joyful 60-second battle, made for the family WhatsApp group.</p>
+        <p class="eyebrow">🪔 Free Rakhi game • 8 memories • no signup</p>
+        <h1>Har Rakhi ke dhaage mein <span>ek poora bachpan bandha hota hai.</span></h1>
+        <p class="hero-kicker">Ek hi bachpan. Do alag kahaaniyan.</p>
+        <p class="hero-copy">8 sawaalon mein kholo woh yaadein jo sirf tum dono samajhte ho—mummy ki daant, remote ki ladai, chhupayi hui mithai aur har baar ke naye excuses.</p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="#play">Start the Rakhi battle — free</a>
+          <a class="btn btn-primary" href="#play">Apni Rakhi Battle shuru karo</a>
           <a class="btn btn-ghost" href="/leaderboard">See Hall of Fame</a>
         </div>
         <div class="proof-row"><span>⚡ 60–90 seconds</span><span>📲 WhatsApp-ready</span><span>🎨 Free festive poster</span></div>
       </div>
       <figure class="hero-art">
         <img src="/images/rakhi-celebration.webp" width="1536" height="1024" alt="A sister tying a rakhi on her brother during a joyful Raksha Bandhan celebration" fetchpriority="high" />
-        <figcaption><span>✨</span> One thread. Eight truths. Unlimited teasing.</figcaption>
+        <figcaption><span>✨</span> One thread. Eight memories. Unlimited teasing.</figcaption>
       </figure>
     </section>
 
@@ -36,12 +37,12 @@ import QuizGame from '../components/QuizGame.astro';
 
     <section id="how" class="how festival-how">
       <p class="eyebrow">The Rakhi ritual, remixed</p>
-      <h2>From tilak to truth test.</h2>
-      <p class="section-copy">No app download, no account and no complicated username. Just nicknames, a private challenge link and your sibling’s brutally honest answers.</p>
+      <h2>From tilak to childhood throwback.</h2>
+      <p class="section-copy">No app download and no account. Just nicknames, a private challenge link and the two versions of your shared childhood.</p>
       <div class="steps">
-        <article class="step"><span class="step-icon">🪔</span><b>01 — Make your sankalp</b><span>Answer 8 festive, savage-but-safe sibling questions.</span></article>
-        <article class="step"><span class="step-icon">💌</span><b>02 — Send the summons</b><span>Drop your private challenge link into WhatsApp.</span></article>
-        <article class="step"><span class="step-icon">🏆</span><b>03 — Unlock shagun</b><span>Reveal the match score, festive poster and Family Court.</span></article>
+        <article class="step"><span class="step-icon">🪔</span><b>01 — Apni kahaani</b><span>Answer 8 playful questions from your shared bachpan.</span></article>
+        <article class="step"><span class="step-icon">💌</span><b>02 — Sibling ki kahaani</b><span>Send one private WhatsApp challenge; no signup needed.</span></article>
+        <article class="step"><span class="step-icon">🏆</span><b>03 — Dono ka verdict</b><span>Reveal the score, festive poster and Family Court.</span></article>
       </div>
     </section>
 
@@ -52,7 +53,7 @@ import QuizGame from '../components/QuizGame.astro';
     </section>
 
     <section id="play" class="how play-section">
-      <div class="play-heading"><p class="eyebrow">Your turn, ji</p><h2>Let the sibling mahayudh begin.</h2><p>Nickname ready? The mithai can wait 60 seconds.</p></div>
+      <div class="play-heading"><p class="eyebrow">Your turn, ji</p><h2>Memory box kholo.</h2><p>Nickname ready? Mithai 60 seconds wait kar sakti hai.</p></div>
       <QuizGame role="creator" />
     </section>
   </div>
@@ -72,6 +73,7 @@ import QuizGame from '../components/QuizGame.astro';
     score: number | null;
     status: 'open' | 'complete';
     completed: boolean;
+    sibling_progress: number;
   }
 
   function element<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string): HTMLElementTagNameMap[K] {
@@ -114,7 +116,9 @@ import QuizGame from '../components/QuizGame.astro';
     const meta = element('small');
     meta.textContent = status.completed
       ? `${status.score}% match • result ready`
-      : item.role === 'creator' ? 'Waiting for your sibling' : 'Challenge in progress';
+      : item.role === 'creator'
+        ? status.sibling_progress ? `${status.sibling_progress}/8 answers received` : 'Waiting for your sibling'
+        : 'Challenge in progress';
     detail.appendChild(title);
     detail.appendChild(meta);
 
@@ -125,6 +129,10 @@ import QuizGame from '../components/QuizGame.astro';
       open.textContent = 'View result';
       actions.appendChild(open);
     } else if (item.role === 'creator') {
+      const wait = element('a', 'btn btn-gold btn-small');
+      wait.href = `/waiting/${item.id}`;
+      wait.textContent = 'Waiting room';
+      actions.appendChild(wait);
       const share = element('button', 'btn btn-primary btn-small');
       share.type = 'button';
       share.textContent = 'Share again';

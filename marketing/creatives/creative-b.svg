@@ -1,13 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
-  <rect width="1080" height="1920" fill="#fff7e8"/>
-  <path d="M-80 100C220 0 360 260 660 120s480 40 520 220v310H-80Z" fill="#ffd166" opacity=".5"/>
-  <text x="540" y="130" text-anchor="middle" fill="#7d1538" font-family="Arial,sans-serif" font-size="40" font-weight="900">RAKHI BATTLE 2026</text>
-  <text x="540" y="500" text-anchor="middle" fill="#241117" font-family="Arial,sans-serif" font-size="92" font-weight="950"><tspan x="540">WHO IS</tspan><tspan x="540" dy="110">ACTUALLY</tspan><tspan x="540" dy="110" fill="#7d1538">MUMMY'S</tspan><tspan x="540" dy="110" fill="#7d1538">FAVOURITE?</tspan></text>
-  <text x="540" y="1020" text-anchor="middle" fill="#7d1538" font-family="Arial,sans-serif" font-size="46" font-weight="900">FAMILY COURT</text>
-  <rect x="82" y="1190" width="916" height="300" rx="52" fill="#7d1538"/>
-  <text x="540" y="1305" text-anchor="middle" fill="#ffd166" font-family="Arial,sans-serif" font-size="50" font-weight="900">WE LET THE FAMILY VOTE.</text>
-  <text x="540" y="1415" text-anchor="middle" fill="#fff7e8" font-family="Arial,sans-serif" font-size="42" font-weight="800">The verdict was not peaceful.</text>
-  <text x="540" y="1650" text-anchor="middle" fill="#6e5d62" font-family="Arial,sans-serif" font-size="38" font-weight="700">8 QUESTIONS • 60 SECONDS • FREE</text>
-  <rect x="82" y="1740" width="916" height="112" rx="32" fill="#ffd166"/>
-  <text x="540" y="1812" text-anchor="middle" fill="#4c0b25" font-family="Arial,sans-serif" font-size="42" font-weight="900">SETTLE YOUR FAMILY →</text>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <defs><clipPath id="photo"><rect width="1080" height="760"/></clipPath><linearGradient id="shade" x2="0" y2="1"><stop offset=".52" stop-color="#241117" stop-opacity="0"/><stop offset="1" stop-color="#241117"/></linearGradient></defs>
+  <rect y="700" width="1080" height="1220" fill="#241117"/><rect width="1080" height="820" fill="url(#shade)"/>
+  <text x="72" y="100" fill="#ffd166" font-family="Arial" font-size="38" font-weight="900">RAKHI BATTLE 2026</text>
+  <text x="72" y="900" fill="#fff7e8" font-family="Arial" font-size="84" font-weight="900"><tspan x="72">EK HI GHAR.</tspan><tspan x="72" dy="100">REMOTE KI</tspan><tspan x="72" dy="100">EK LADAI.</tspan><tspan x="72" dy="100" fill="#ffd166">KAHAANIYAN DO.</tspan></text>
+  <rect x="72" y="1375" width="936" height="220" rx="38" fill="#fff7e8"/><text x="540" y="1465" text-anchor="middle" fill="#7d1538" font-family="Arial" font-size="39" font-weight="800">MUMMY KA FAVOURITE KAUN?</text><text x="540" y="1550" text-anchor="middle" fill="#241117" font-family="Arial" font-size="54" font-weight="950">FAMILY COURT DECIDES ⚖</text>
+  <rect x="72" y="1740" width="936" height="112" rx="32" fill="#ffd166"/><text x="540" y="1812" text-anchor="middle" fill="#4c0b25" font-family="Arial" font-size="40" font-weight="900">CHALLENGE YOUR SIBLING FREE →</text>
 </svg>

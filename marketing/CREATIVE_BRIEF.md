@@ -1,13 +1,21 @@
-# Initial creative set
+# Rakhi Battle launch creative system
 
-All three assets are 1080×1920 and rendered both as PNG Story ads and six-second MP4 Reels with subtle native motion. No AI image/video service is required.
+The product sells a smile, a shared memory and a keepsake—not a relationship test. Every hook must feel affectionate even when it teases.
 
-| Variant | Hook | Hypothesis |
-|---|---|---|
-| A | “My sister says she knows everything… she scored 3/8” | Specific failure score creates curiosity and sibling tagging. |
-| B | “Who is actually mummy’s favourite?” | High-recognition family dispute drives Family Court interest. |
-| C | “Send this to your sibling if they’re brave enough” | Direct challenge wording maximizes link sharing. |
+| Variant | Human truth | Hook | Best audience |
+|---|---|---|---|
+| A — Dhaaga | Rakhi carries a whole childhood | “Har Rakhi ke dhaage mein ek poora bachpan bandha hota hai.” | Broad family/emotion |
+| B — Ghar | Siblings confidently remember the same home differently | “Ek hi ghar. Remote ki ek ladai. Kahaaniyan do.” | Humour/tagging |
+| C — Dooriyan | Distance changes the city, not the shared archive | “Shehar alag. Bachpan same.” | Adult/distant siblings |
 
-Primary CTA for all: free challenge. Do not advertise paid unlocks until checkout is live and verified.
+Primary CTA: **8 memories. 60 seconds. Play free.**
 
-Render with `bash marketing/render-creatives.sh`. Upload `rendered/*.mp4` to Reels and `rendered/*.png` to Stories. Add the live domain in Meta's destination field after deployment.
+Rules:
+
+- Never say “prove your love”, “compatibility”, “real sibling” or shame a low score.
+- Show both siblings and Rakhi ritual cues; preserve the full pair when cropping.
+- Promote the free game and free poster until payment checkout is live and verified.
+- Treat a click as attention, a completed pair as activation, and a child battle as true spread.
+- Export Story/Reel 1080×1920 and Feed 1080×1080 with `bash marketing/render-creatives.sh`.
+
+The MP4 exports are six-second motion posts built from the same master frames. Platform music, subtitles and native stickers can be added during upload.

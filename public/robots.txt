@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /api/
 
-Sitemap: https://rakhi-battle.riselikealion7.workers.dev/sitemap-index.xml
+Sitemap: https://rakhi-battle.riselikealion7.workers.dev/sitemap.xml
