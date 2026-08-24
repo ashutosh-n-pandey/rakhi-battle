@@ -9,7 +9,7 @@
     "preview": "astro preview",
     "test": "vitest run",
     "db:local": "wrangler d1 migrations apply DB --local --config wrangler.jsonc",
-    "db:remote": "wrangler d1 migrations apply DB --remote --cwd dist/server",
+    "db:remote": "wrangler d1 migrations apply DB --remote --config wrangler.jsonc",
     "deploy": "npm run build && wrangler deploy",
     "deploy:dry": "npm run build && wrangler deploy --dry-run"
   },
