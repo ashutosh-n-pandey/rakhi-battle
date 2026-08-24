@@ -11,7 +11,7 @@ interface Props {
 const {
   title = 'Rakhi Battle 2026 — Who really knows whom?',
   description = 'You say your sibling knows you. Prove it in 60 seconds.',
-  image = '/og.svg',
+  image = '/images/rakhi-celebration.webp',
   noindex = false,
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
@@ -31,8 +31,8 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin);
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={imageUrl} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <meta property="og:image:width" content="1536" />
+    <meta property="og:image:height" content="1024" />
     <meta name="twitter:card" content="summary_large_image" />
     <title>{title}</title>
   </head>
@@ -42,12 +42,16 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin);
         <span class="brand-mark" aria-hidden="true">र</span>
         <span>RAKHI BATTLE <b>2026</b></span>
       </a>
-      <span class="countdown">28 AUG</span>
+      <nav class="header-nav" aria-label="Main navigation">
+        <a href="/#how">How it works</a>
+        <a href="/leaderboard">Hall of Fame</a>
+        <span class="countdown">28 AUG</span>
+      </nav>
     </header>
     <main><slot /></main>
     <footer>
-      <p>Built for sibling chaos. No accounts. No phone numbers.</p>
-      <nav><a href="/privacy">Privacy</a><a href="/terms">Terms</a></nav>
+      <p>Made with mithai, mischief and sibling pyaar. No accounts. No phone numbers.</p>
+      <nav><a href="/leaderboard">Hall of Fame</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></nav>
     </footer>
     <script is:inline>
       (() => {

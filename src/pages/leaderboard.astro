@@ -1,0 +1,67 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { battleCode, db } from '../lib/server';
+
+interface HallRow {
+  id: string;
+  creator_name: string;
+  sibling_name: string;
+  score: number;
+  completed_at: string;
+}
+
+const query = await db().prepare(
+  `SELECT id, creator_name, sibling_name, score, completed_at
+     FROM challenges
+    WHERE status = 'complete'
+      AND leaderboard_creator_opt_in = 1
+      AND leaderboard_sibling_opt_in = 1
+      AND sibling_name IS NOT NULL
+      AND score IS NOT NULL
+      AND expires_at > CURRENT_TIMESTAMP
+    ORDER BY score DESC, completed_at ASC
+    LIMIT 25`
+).all<HallRow>();
+const leaders = query.results;
+---
+<Layout
+  title="Rakhi Hall of Fame 2026 — Top sibling scores"
+  description="Meet the sibling pairs who truly know each other in Rakhi Battle 2026."
+>
+  <div class="shell wide-shell">
+    <section class="leaderboard-hero">
+      <div>
+        <p class="eyebrow">🏵️ Rakhi Hall of Fame</p>
+        <h1>Pyaar. Proof. <span>Bragging rights.</span></h1>
+        <p class="hero-copy">Real completed battles, ranked by sibling match score. Every pair below agreed to appear.</p>
+      </div>
+      <div class="hall-seal" aria-hidden="true"><span>र</span><b>2026</b></div>
+    </section>
+
+    <section class="card hall-card">
+      <div class="hall-head"><span>Rank & siblings</span><span>Match score</span></div>
+      {leaders.length ? (
+        <ol class="leader-list">
+          {leaders.map((leader, index) => (
+            <li class:list={{ podium: index < 3 }}>
+              <span class="rank">{index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}</span>
+              <span class="pair"><strong>{leader.creator_name} × {leader.sibling_name}</strong><small>{battleCode(leader.id)} • verified completed battle</small></span>
+              <strong class="hall-score">{leader.score}%</strong>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <div class="hall-empty">
+          <span>🪔</span>
+          <h2>The first diya is waiting.</h2>
+          <p>Complete a battle and let both siblings opt in to claim the opening spot.</p>
+        </div>
+      )}
+    </section>
+
+    <section class="hall-privacy">
+      <p><strong>Same nickname? No problem.</strong> Every entry has its own unique battle code. No username, email, phone number or account is needed.</p>
+      <a class="btn btn-primary" href="/#play">Claim your Rakhi score →</a>
+    </section>
+  </div>
+</Layout>

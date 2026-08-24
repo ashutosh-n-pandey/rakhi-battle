@@ -17,9 +17,17 @@ export const POST: APIRoute = async ({ request, params }) => {
     const update = await db().prepare(
       `UPDATE challenges
           SET sibling_name = ?, sibling_answers = ?, score = ?, result_json = ?,
-              status = 'complete', completed_at = CURRENT_TIMESTAMP
+              leaderboard_sibling_opt_in = ?, status = 'complete',
+              completed_at = CURRENT_TIMESTAMP
         WHERE id = ? AND status = 'open'`
-    ).bind(siblingName, JSON.stringify(body.answers), result.percent, JSON.stringify(result), id).run();
+    ).bind(
+      siblingName,
+      JSON.stringify(body.answers),
+      result.percent,
+      JSON.stringify(result),
+      challenge.leaderboard_creator_opt_in === 1 && body.leaderboard_opt_in === true ? 1 : 0,
+      id,
+    ).run();
 
     if (!update.meta.changes) return json({ error: 'This battle was just completed.' }, 409);
     return json({ id, result });

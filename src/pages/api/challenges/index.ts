@@ -12,12 +12,14 @@ export const POST: APIRoute = async ({ request }) => {
     const retention = 45;
     await db().prepare(
       `INSERT INTO challenges
-        (id, creator_name, creator_answers, source, utm_source, utm_medium, utm_campaign, expires_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now', ?))`
+        (id, creator_name, creator_answers, leaderboard_creator_opt_in, source,
+         utm_source, utm_medium, utm_campaign, expires_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now', ?))`
     ).bind(
       id,
       creatorName,
       JSON.stringify(body.answers),
+      body.leaderboard_opt_in === true ? 1 : 0,
       sourceFrom(body.source),
       safeMetric(body.utm_source),
       safeMetric(body.utm_medium),

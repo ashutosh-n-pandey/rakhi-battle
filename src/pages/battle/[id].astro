@@ -13,10 +13,15 @@ const description = `${challenge.creator_name} says you don't know them that wel
 <Layout title={title} description={description} noindex>
   <div class="shell">
     <section class="hero" style="padding-top: 24px">
-      <p class="eyebrow">Incoming sibling challenge</p>
-      <h1><span>{challenge.creator_name}</span> thinks you’ll lose.</h1>
-      <p class="hero-copy">8 questions. One match score. No excuses.</p>
+      <p class="eyebrow">🪔 A festive sibling summons has arrived</p>
+      <h1><span>{challenge.creator_name}</span> thinks they know the truth.</h1>
+      <p class="hero-copy">8 questions. One Rakhi match score. Mithai afterwards—arguments first.</p>
     </section>
-    <QuizGame role="sibling" challengeId={id} creatorName={challenge.creator_name} />
+    <QuizGame
+      role="sibling"
+      challengeId={id}
+      creatorName={challenge.creator_name}
+      leaderboardCreatorOptIn={challenge.leaderboard_creator_opt_in === 1}
+    />
   </div>
 </Layout>

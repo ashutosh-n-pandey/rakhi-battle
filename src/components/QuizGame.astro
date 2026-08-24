@@ -5,24 +5,36 @@ interface Props {
   role: Role;
   challengeId?: string;
   creatorName?: string;
+  leaderboardCreatorOptIn?: boolean;
 }
 
-const { role, challengeId = '', creatorName = '' } = Astro.props;
+const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = false } = Astro.props;
 ---
-<section class="game-wrap" data-quiz data-role={role} data-challenge={challengeId} data-creator={creatorName}>
+<section class="game-wrap" data-quiz data-role={role} data-challenge={challengeId} data-creator={creatorName} data-creator-hall-opt-in={String(leaderboardCreatorOptIn)}>
   <div class="progress-meta hidden" data-progress-meta>
     <span data-progress-label>Question 1 of 8</span><span>~60 sec</span>
   </div>
   <div class="progress hidden" data-progress><span></span></div>
 
   <div class="card name-screen" data-name-screen>
-    <p class="eyebrow">{role === 'creator' ? 'Create your battle' : `${creatorName} challenged you`}</p>
-    <h2>{role === 'creator' ? 'What should we call you?' : 'Brave enough to answer?'}</h2>
+    <p class="eyebrow">{role === 'creator' ? 'Shubh aarambh • create your battle' : `${creatorName} sent you a Rakhi challenge`}</p>
+    <h2>{role === 'creator' ? 'Your festive nickname?' : 'Ready to defend the sibling bond?'}</h2>
     <p class="muted">Only a nickname. No phone number, email or signup.</p>
     <form data-name-form>
       <input data-name maxlength="24" autocomplete="nickname" placeholder={role === 'creator' ? 'Your nickname' : 'Your nickname'} required />
+      {(role === 'creator' || leaderboardCreatorOptIn) && (
+        <label class="consent-row">
+          <input type="checkbox" data-hall-consent />
+          <span>
+            <strong>{role === 'creator' ? 'Hall of Fame (optional)' : 'Join the Hall of Fame too'}</strong>
+            {role === 'creator'
+              ? ' If both of you agree, show your nicknames, score and a unique battle code publicly.'
+              : ` ${creatorName} opted in. Tick this only if you also agree to show both nicknames, score and battle code publicly.`}
+          </span>
+        </label>
+      )}
       <button class="btn btn-primary btn-block" type="submit">
-        {role === 'creator' ? 'Start the battle →' : 'Accept challenge →'}
+        {role === 'creator' ? 'Begin the Rakhi battle →' : 'Accept the shagun challenge →'}
       </button>
     </form>
   </div>
@@ -34,9 +46,9 @@ const { role, challengeId = '', creatorName = '' } = Astro.props;
   </div>
 
   <div class="card share-box hidden" data-share-screen>
-    <p class="eyebrow">Battle created</p>
-    <h2>Now send it to your sibling 😏</h2>
-    <p class="muted">Your result unlocks after they finish all 8 questions.</p>
+    <p class="eyebrow">Rakhi challenge ready ✨</p>
+    <h2>Send the festive summons 😏</h2>
+    <p class="muted">Your score, celebration poster and Family Court unlock after your sibling answers.</p>
     <div class="share-link">
       <input data-share-url readonly aria-label="Challenge link" />
       <button class="btn btn-ghost" data-copy type="button">Copy</button>
@@ -73,6 +85,7 @@ const { role, challengeId = '', creatorName = '' } = Astro.props;
     const error = root.querySelector<HTMLElement>('[data-error]')!;
     const answers: Answers = {};
     let playerName = '';
+    let leaderboardOptIn = false;
     let index = 0;
     let busy = false;
 
@@ -113,8 +126,8 @@ const { role, challengeId = '', creatorName = '' } = Astro.props;
         const attr = window.rakhiAttribution || { source: 'direct' };
         const endpoint = role === 'creator' ? '/api/challenges' : `/api/challenges/${challengeId}/complete`;
         const payload = role === 'creator'
-          ? { creator_name: playerName, answers, ...attr }
-          : { sibling_name: playerName, answers, session_id: window.rakhiSession, ...attr };
+          ? { creator_name: playerName, answers, leaderboard_opt_in: leaderboardOptIn, ...attr }
+          : { sibling_name: playerName, answers, leaderboard_opt_in: leaderboardOptIn, session_id: window.rakhiSession, ...attr };
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
@@ -149,7 +162,7 @@ const { role, challengeId = '', creatorName = '' } = Astro.props;
       const urlInput = root.querySelector<HTMLInputElement>('[data-share-url]')!;
       const status = root.querySelector<HTMLElement>('[data-status]')!;
       urlInput.value = url;
-      const text = `${playerName} says you don't know them that well 😏\nAccept the Rakhi Battle:`;
+      const text = `🪔 ${playerName} sent you a Rakhi Battle! Pyaar bhi, proof bhi 😏\nAccept the festive challenge:`;
       root.querySelector('[data-copy]')?.addEventListener('click', async () => {
         await navigator.clipboard.writeText(url);
         status.textContent = 'Link copied.';
@@ -170,6 +183,7 @@ const { role, challengeId = '', creatorName = '' } = Astro.props;
       event.preventDefault();
       playerName = nameInput.value.trim().slice(0, 24);
       if (!playerName) return;
+      leaderboardOptIn = root.querySelector<HTMLInputElement>('[data-hall-consent]')?.checked === true;
       nameScreen.classList.add('hidden');
       questionScreen.classList.remove('hidden');
       progress.classList.remove('hidden');

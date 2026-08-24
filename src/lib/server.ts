@@ -10,6 +10,8 @@ export interface ChallengeRow {
   score: number | null;
   result_json: string | null;
   status: 'open' | 'complete';
+  leaderboard_creator_opt_in: number;
+  leaderboard_sibling_opt_in: number;
   expires_at: string;
 }
 
@@ -35,7 +37,8 @@ export async function getChallenge(id: string): Promise<ChallengeRow | null> {
   if (!/^[a-f0-9]{24}$/.test(id)) return null;
   return db().prepare(
     `SELECT id, creator_name, sibling_name, creator_answers, sibling_answers,
-            score, result_json, status, expires_at
+            score, result_json, status, leaderboard_creator_opt_in,
+            leaderboard_sibling_opt_in, expires_at
        FROM challenges
       WHERE id = ? AND expires_at > CURRENT_TIMESTAMP`
   ).bind(id).first<ChallengeRow>();
@@ -62,6 +65,10 @@ export function token(): string {
   const bytes = new Uint8Array(12);
   crypto.getRandomValues(bytes);
   return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+export function battleCode(id: string): string {
+  return `RB-${id.slice(0, 6).toUpperCase()}`;
 }
 
 export function sourceFrom(value: unknown): string {

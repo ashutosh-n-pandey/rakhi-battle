@@ -3,27 +3,47 @@ import Layout from '../layouts/Layout.astro';
 import QuizGame from '../components/QuizGame.astro';
 ---
 <Layout>
-  <div class="shell">
-    <section class="hero">
-      <p class="eyebrow">Free • 8 questions • no signup</p>
-      <h1>You say your sibling <span>knows you.</span></h1>
-      <div class="rakhi-line"><span>र</span></div>
-      <p class="hero-copy">Prove it. Create a 60-second battle, send it on WhatsApp and let Family Court settle the damage.</p>
-      <a class="btn btn-primary" href="#play">Challenge your sibling — free</a>
-      <div class="proof-row"><span>⚡ 60–90 seconds</span><span>📲 WhatsApp-ready</span><span>🎨 Free result poster</span></div>
+  <div class="shell wide-shell">
+    <section class="festival-strip" aria-label="Raksha Bandhan celebration">
+      <span>शुभ रक्षाबंधन</span><i>✦</i><span>28 August 2026</span><i>✦</i><span>Pyaar bhi • proof bhi</span>
     </section>
 
-    <section class="how">
-      <p class="eyebrow">How it works</p>
-      <h2>Three taps. One family dispute.</h2>
+    <section class="hero festive-hero">
+      <div class="hero-content">
+        <p class="eyebrow">🪔 Free Rakhi game • 8 questions • no signup</p>
+        <h1>Iss Rakhi, pyaar bhi. <span>Proof bhi.</span></h1>
+        <p class="hero-copy">Tie the thread, pass the mithai—and find out whether your sibling actually knows you. One joyful 60-second battle, made for the family WhatsApp group.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#play">Start the Rakhi battle — free</a>
+          <a class="btn btn-ghost" href="/leaderboard">See Hall of Fame</a>
+        </div>
+        <div class="proof-row"><span>⚡ 60–90 seconds</span><span>📲 WhatsApp-ready</span><span>🎨 Free festive poster</span></div>
+      </div>
+      <figure class="hero-art">
+        <img src="/images/rakhi-celebration.webp" width="1536" height="1024" alt="A sister tying a rakhi on her brother during a joyful Raksha Bandhan celebration" fetchpriority="high" />
+        <figcaption><span>✨</span> One thread. Eight truths. Unlimited teasing.</figcaption>
+      </figure>
+    </section>
+
+    <section id="how" class="how festival-how">
+      <p class="eyebrow">The Rakhi ritual, remixed</p>
+      <h2>From tilak to truth test.</h2>
+      <p class="section-copy">No app download, no account and no complicated username. Just nicknames, a private challenge link and your sibling’s brutally honest answers.</p>
       <div class="steps">
-        <article class="step"><b>01 — Pick</b><span>Answer 8 savage-but-safe sibling questions.</span></article>
-        <article class="step"><b>02 — Send</b><span>Drop your private challenge link on WhatsApp.</span></article>
-        <article class="step"><b>03 — Settle</b><span>Get a match score, poster and Family Court vote.</span></article>
+        <article class="step"><span class="step-icon">🪔</span><b>01 — Make your sankalp</b><span>Answer 8 festive, savage-but-safe sibling questions.</span></article>
+        <article class="step"><span class="step-icon">💌</span><b>02 — Send the summons</b><span>Drop your private challenge link into WhatsApp.</span></article>
+        <article class="step"><span class="step-icon">🏆</span><b>03 — Unlock shagun</b><span>Reveal the match score, festive poster and Family Court.</span></article>
       </div>
     </section>
 
-    <section id="play" class="how">
+    <section class="hall-invite">
+      <div><p class="eyebrow">🏵️ New: Rakhi Hall of Fame</p><h2>Same names. Still unique.</h2></div>
+      <p>Every battle gets a private random identity and a short public code. A result reaches the leaderboard only when <strong>both siblings</strong> say yes.</p>
+      <a class="text-link" href="/leaderboard">Visit the Hall of Fame →</a>
+    </section>
+
+    <section id="play" class="how play-section">
+      <div class="play-heading"><p class="eyebrow">Your turn, ji</p><h2>Let the sibling mahayudh begin.</h2><p>Nickname ready? The mithai can wait 60 seconds.</p></div>
       <QuizGame role="creator" />
     </section>
   </div>

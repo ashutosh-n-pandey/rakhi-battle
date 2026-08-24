@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { displayAnswer, getWinnerName, questions, savageVerdict } from '../../lib/game';
-import { getChallenge, paidTier, parseAnswers, parseResult } from '../../lib/server';
+import { battleCode, getChallenge, paidTier, parseAnswers, parseResult } from '../../lib/server';
 
 const id = Astro.params.id ?? '';
 const challenge = await getChallenge(id);
@@ -31,10 +31,10 @@ const posterData = {
 >
   <div class="shell">
     <section class="card result-hero">
-      <p class="eyebrow">Rakhi Battle verdict</p>
+      <p class="eyebrow">🪔 The Rakhi verdict is here</p>
       <h2>{challenge.creator_name} <span class="muted">vs</span> {siblingName}</h2>
       <div class="score-ring" style={`--score:${result.percent * 3.6}deg`}><strong>{result.percent}%</strong></div>
-      <span class="winner-pill">🏆 {winner} {result.winner === 'both' ? 'survive' : 'wins'}</span>
+      <span class="winner-pill">🏆 {winner} {result.winner === 'both' ? 'share the shagun' : 'wins the shagun'}</span>
       <h3 style="font-size:1.8rem;margin-top:18px">{result.verdict}</h3>
       <p class="muted">{result.subline}</p>
 
@@ -46,10 +46,18 @@ const posterData = {
       </div>
     </section>
 
+    {challenge.leaderboard_creator_opt_in === 1 && challenge.leaderboard_sibling_opt_in === 1 && (
+      <a class="hall-result-banner" href="/leaderboard">
+        <span>🏵️</span>
+        <span><strong>You made the Rakhi Hall of Fame!</strong><small>{battleCode(id)} • See where your score ranks</small></span>
+        <b>View →</b>
+      </a>
+    )}
+
     <section class="card" style="margin-top:16px;text-align:center">
-      <p class="eyebrow">Your free Story poster</p>
-      <h2>Put the result on Status.</h2>
-      <p class="muted">Free, clean and designed for WhatsApp Status / Instagram Story.</p>
+      <p class="eyebrow">Your free festive Story poster</p>
+      <h2>Give the family group chat some masala.</h2>
+      <p class="muted">A bright Rakhi keepsake, made for WhatsApp Status and Instagram Story.</p>
       <div class="poster-preview"><canvas data-poster width="1080" height="1920"></canvas></div>
       <div class="share-actions">
         <button class="btn btn-primary" data-poster-share>Share poster</button>
@@ -59,9 +67,9 @@ const posterData = {
     </section>
 
     <a class="court-banner" style="display:block;text-decoration:none" href={`/court/${id}?ref=family_court&utm_source=family_court&utm_campaign=rakhi2026`} data-court-link>
-      <p class="eyebrow" style="color:#ffd166">Family Court</p>
-      <h3 style="font-size:1.8rem">You clearly can’t settle this yourselves.</h3>
-      <p>Bring cousins, friends and family to vote →</p>
+      <p class="eyebrow" style="color:#ffd166">⚖️ Family Court</p>
+      <h3 style="font-size:1.8rem">Mithai is sweet. This dispute is not.</h3>
+      <p>Summon cousins, friends and family to vote →</p>
     </a>
 
     <section class="card premium">
@@ -119,7 +127,7 @@ const posterData = {
     } while (ctx.measureText(text).width > maxWidth && size > 44);
   }
 
-  function drawPoster() {
+  async function drawPoster() {
     const w = canvas.width;
     const h = canvas.height;
     const gradient = ctx.createLinearGradient(0, 0, w, h);
@@ -128,6 +136,27 @@ const posterData = {
     gradient.addColorStop(1, '#a32950');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, w, h);
+
+    const art = new Image();
+    art.src = '/images/rakhi-celebration.webp';
+    try {
+      await art.decode();
+      const frameHeight = 345;
+      const scale = Math.max(w / art.naturalWidth, frameHeight / art.naturalHeight);
+      const sourceWidth = w / scale;
+      const sourceHeight = frameHeight / scale;
+      const sourceX = Math.max(0, (art.naturalWidth - sourceWidth) * .67);
+      const sourceY = Math.max(0, (art.naturalHeight - sourceHeight) * .42);
+      ctx.drawImage(art, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, w, frameHeight);
+      const artShade = ctx.createLinearGradient(0, 0, 0, frameHeight);
+      artShade.addColorStop(0, 'rgba(76,11,37,.28)');
+      artShade.addColorStop(.65, 'rgba(76,11,37,.52)');
+      artShade.addColorStop(1, '#4c0b25');
+      ctx.fillStyle = artShade;
+      ctx.fillRect(0, 0, w, frameHeight + 2);
+    } catch {
+      // The poster remains fully usable if the decorative image cannot load.
+    }
 
     ctx.globalAlpha = .12;
     ctx.fillStyle = '#ffd166';
@@ -202,11 +231,13 @@ const posterData = {
     ctx.fillText(location.host.toUpperCase(), w / 2, 1825);
   }
 
-  function posterBlob() {
+  const posterReady = drawPoster();
+
+  async function posterBlob() {
+    await posterReady;
     return new Promise((resolve) => canvas.toBlob(resolve, 'image/png', .95));
   }
 
-  drawPoster();
   window.rakhiTrack('pair_result_view', { score: posterData.percent }, id);
 
   document.querySelector('[data-poster-download]')?.addEventListener('click', async () => {
