@@ -11,7 +11,7 @@ interface Props {
 const {
   title = 'Rakhi Battle 2026 — Who really knows whom?',
   description = 'You say your sibling knows you. Prove it in 60 seconds.',
-  image = '/images/rakhi-celebration.webp',
+  image = '/images/rakhi-share.webp',
   noindex = false,
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
@@ -31,8 +31,8 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin);
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={imageUrl} />
-    <meta property="og:image:width" content="1536" />
-    <meta property="og:image:height" content="1024" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <title>{title}</title>
   </head>
