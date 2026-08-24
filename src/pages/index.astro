@@ -25,6 +25,15 @@ import QuizGame from '../components/QuizGame.astro';
       </figure>
     </section>
 
+    <section class="recent-battles hidden" data-recent-battles>
+      <div class="recent-heading">
+        <div><p class="eyebrow">🧵 Your recent Rakhi battles</p><h2>Pick up where you left off.</h2></div>
+        <a class="btn btn-gold" href="#play">+ Start new</a>
+      </div>
+      <p class="recent-note">Saved only in this browser. No account or login.</p>
+      <div class="recent-list" data-recent-list aria-live="polite"></div>
+    </section>
+
     <section id="how" class="how festival-how">
       <p class="eyebrow">The Rakhi ritual, remixed</p>
       <h2>From tilak to truth test.</h2>
@@ -49,5 +58,106 @@ import QuizGame from '../components/QuizGame.astro';
   </div>
 </Layout>
 <script>
+  import { forgetBattle, readRecentBattles, type RecentBattle } from '../lib/recent';
+
   window.rakhiTrack('landing_view');
+
+  const recentSection = document.querySelector<HTMLElement>('[data-recent-battles]');
+  const recentList = document.querySelector<HTMLElement>('[data-recent-list]');
+
+  interface BattleStatus {
+    id: string;
+    creator_name: string;
+    sibling_name: string | null;
+    score: number | null;
+    status: 'open' | 'complete';
+    completed: boolean;
+  }
+
+  function element<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string): HTMLElementTagNameMap[K] {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    return node;
+  }
+
+  async function loadStatus(item: RecentBattle): Promise<{ item: RecentBattle; status: BattleStatus } | null> {
+    try {
+      const response = await fetch(`/api/challenges/${item.id}`);
+      if (!response.ok) {
+        if (response.status === 404) forgetBattle(item.id);
+        return null;
+      }
+      return { item, status: await response.json() as BattleStatus };
+    } catch {
+      return null;
+    }
+  }
+
+  async function shareAgain(id: string, button: HTMLButtonElement) {
+    const url = `${location.origin}/battle/${id}?ref=recent_battle`;
+    if (navigator.share) {
+      await navigator.share({ title: 'Rakhi Battle 2026', text: '🪔 Your Rakhi challenge is waiting!', url });
+    } else {
+      await navigator.clipboard.writeText(url);
+      button.textContent = 'Link copied ✓';
+    }
+  }
+
+  function renderRow(item: RecentBattle, status: BattleStatus) {
+    const row = element('article', 'recent-item');
+    const icon = element('span', 'recent-icon');
+    icon.textContent = status.completed ? '🏆' : item.role === 'creator' ? '💌' : '⚡';
+
+    const detail = element('div', 'recent-detail');
+    const title = element('strong');
+    title.textContent = status.sibling_name ? `${status.creator_name} × ${status.sibling_name}` : status.creator_name;
+    const meta = element('small');
+    meta.textContent = status.completed
+      ? `${status.score}% match • result ready`
+      : item.role === 'creator' ? 'Waiting for your sibling' : 'Challenge in progress';
+    detail.appendChild(title);
+    detail.appendChild(meta);
+
+    const actions = element('div', 'recent-actions');
+    if (status.completed) {
+      const open = element('a', 'btn btn-primary btn-small');
+      open.href = `/result/${item.id}`;
+      open.textContent = 'View result';
+      actions.appendChild(open);
+    } else if (item.role === 'creator') {
+      const share = element('button', 'btn btn-primary btn-small');
+      share.type = 'button';
+      share.textContent = 'Share again';
+      share.addEventListener('click', () => shareAgain(item.id, share).catch(() => { share.textContent = 'Copy failed'; }));
+      actions.appendChild(share);
+    } else {
+      const open = element('a', 'btn btn-primary btn-small');
+      open.href = `/battle/${item.id}`;
+      open.textContent = 'Continue';
+      actions.appendChild(open);
+    }
+
+    const remove = element('button', 'recent-remove');
+    remove.type = 'button';
+    remove.setAttribute('aria-label', `Remove ${status.creator_name} battle from this device`);
+    remove.textContent = '×';
+    remove.addEventListener('click', () => {
+      forgetBattle(item.id);
+      row.remove();
+      if (!recentList?.children.length) recentSection?.classList.add('hidden');
+    });
+    actions.appendChild(remove);
+    row.appendChild(icon);
+    row.appendChild(detail);
+    row.appendChild(actions);
+    recentList?.appendChild(row);
+  }
+
+  const recent = readRecentBattles();
+  if (recent.length && recentSection && recentList) {
+    Promise.all(recent.map(loadStatus)).then((rows) => {
+      rows.filter((row): row is NonNullable<typeof row> => Boolean(row)).forEach(({ item, status }) => renderRow(item, status));
+      if (recentList.children.length) recentSection.classList.remove('hidden');
+    });
+  }
 </script>

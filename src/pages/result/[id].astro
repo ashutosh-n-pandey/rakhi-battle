@@ -30,7 +30,7 @@ const posterData = {
   noindex
 >
   <div class="shell">
-    <section class="card result-hero">
+    <section class="card result-hero" data-result-memory data-id={id} data-name={`${challenge.creator_name} × ${siblingName}`}>
       <p class="eyebrow">🪔 The Rakhi verdict is here</p>
       <h2>{challenge.creator_name} <span class="muted">vs</span> {siblingName}</h2>
       <div class="score-ring" style={`--score:${result.percent * 3.6}deg`}><strong>{result.percent}%</strong></div>
@@ -114,6 +114,14 @@ const posterData = {
     </div>
   </div>
 </Layout>
+
+<script>
+  import { rememberBattle } from '../../lib/recent';
+  const memory = document.querySelector<HTMLElement>('[data-result-memory]');
+  if (memory?.dataset.id && memory.dataset.name) {
+    rememberBattle({ id: memory.dataset.id, name: memory.dataset.name, role: 'viewer' });
+  }
+</script>
 
 <script is:inline define:vars={{ posterData, id }}>
   const canvas = document.querySelector('[data-poster]');

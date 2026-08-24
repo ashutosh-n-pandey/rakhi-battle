@@ -7,6 +7,8 @@ export const GET: APIRoute = async ({ params }) => {
   return json({
     id: challenge.id,
     creator_name: challenge.creator_name,
+    sibling_name: challenge.sibling_name,
+    score: challenge.score,
     status: challenge.status,
     completed: challenge.status === 'complete',
   });

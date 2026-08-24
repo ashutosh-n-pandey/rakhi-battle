@@ -65,6 +65,7 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
 
 <script>
   import { questions, type Answers, type Role } from '../lib/game';
+  import { rememberBattle } from '../lib/recent';
 
   const root = document.querySelector<HTMLElement>('[data-quiz]')!;
   {
@@ -136,6 +137,7 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
         const data = await response.json() as { error?: string; id: string; result: { percent: number } };
         if (!response.ok) throw new Error(data.error || 'Something went wrong');
         if (role === 'creator') {
+          rememberBattle({ id: data.id, name: playerName, role: 'creator' });
           window.rakhiTrack('battle_creator_complete', {}, data.id);
           const shareUrl = new URL(`/battle/${data.id}`, location.origin);
           shareUrl.searchParams.set('utm_source', 'whatsapp');
@@ -144,6 +146,7 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
           shareUrl.searchParams.set('ref', 'sibling_challenge');
           setupShare(shareUrl.toString(), data.id);
         } else {
+          rememberBattle({ id: challengeId, name: `${root.dataset.creator} × ${playerName}`, role: 'sibling' });
           window.rakhiTrack('challenge_complete', { score: data.result.percent }, challengeId);
           location.href = `/result/${challengeId}?fresh=1`;
         }
@@ -184,6 +187,9 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
       playerName = nameInput.value.trim().slice(0, 24);
       if (!playerName) return;
       leaderboardOptIn = root.querySelector<HTMLInputElement>('[data-hall-consent]')?.checked === true;
+      if (role === 'sibling' && challengeId) {
+        rememberBattle({ id: challengeId, name: `${root.dataset.creator} × ${playerName}`, role: 'sibling' });
+      }
       nameScreen.classList.add('hidden');
       questionScreen.classList.remove('hidden');
       progress.classList.remove('hidden');
