@@ -1,32 +1,49 @@
 # Rakhi Battle 2026 — decision log
 
-Updated: 23 August 2026
+Updated: 25 August 2026
 
-| Finding | Implication | Product decision |
+This file contains accepted decisions. Newer dated entries supersede conflicting older plans.
+
+| Date | Finding | Decision |
 |---|---|---|
-| Raksha Bandhan is on 28 August 2026; the launch window is five days. | Every nonessential dependency destroys test time. | Freeze one 8-question game, one free Story poster and one Family Court loop. |
-| Existing friendship/sibling quizzes prove that create → share link → score is understood. | The base mechanic is not differentiated. | Differentiate through Rakhi timing, paired verdicts, Indian sibling humour, attractive free poster and family voting. |
-| Competitors commonly use 10–15 questions and leaderboards. | Longer quizzes create more content but increase mobile abandonment. | Use 8 large-tap questions targeting 60–90 seconds. Add only real aggregate counts later. |
-| Status/Story images are a distribution surface, but AI generation per user is wasteful. | Poster quality matters more than AI novelty. | Generate 1080×1920 posters deterministically in browser Canvas at near-zero marginal cost. |
-| Indian gateway onboarding requires KYC/business verification and compliant site policies. | Payments cannot be assumed live on day one. | Build Razorpay Orders + server signature verification now; keep it disabled until merchant activation and keys. |
-| One-time ₹49/₹99 upgrades are low-friction hypotheses; the traffic window is too short for a four-price test. | Early A/B pricing would fragment already-small samples. | Launch ₹49 Savage / ₹99 Full Reveal. Test price only after at least 20 checkout starts per tier. |
-| Cloudflare D1 is available on the free Workers tier and binds directly to Workers. | Server state and analytics can remain low-cost without a separate vendor. | One Astro Worker + D1. No per-play model/API calls. |
-| A quiz answer is the creator's opinion, not objective truth. | Presenting it as fact can create genuine conflict. | Label the result as entertainment and route disagreements to Family Court votes. |
+| 23 Aug | Raksha Bandhan is 28 August 2026 and the launch window is short. | Freeze one eight-question game and avoid nonessential dependencies. |
+| 23 Aug | Create → share link → sibling score is understood but not differentiated. | Differentiate through Rakhi timing, shared-childhood humour, paired answers, keepsakes and Family Court. |
+| 23 Aug | Longer quizzes add content but increase mobile abandonment. | Keep eight large-tap questions targeting roughly 60–90 seconds. |
+| 23 Aug | AI image generation per result adds cost and latency. | Render deterministic 1080×1920 assets in browser Canvas. |
+| 23 Aug | Gateway onboarding cannot be assumed complete. | Build Razorpay Orders and HMAC verification, but keep payments disabled until activation and live testing. |
+| 23 Aug | Cloudflare Worker + D1 fits the early cost profile. | Use one Astro Worker and D1 with no per-player AI/API call. |
+| 23 Aug | Quiz answers are opinions, not objective truth. | Keep the product affectionate entertainment and route disagreement into playful reveals/Family Court. |
+| 24 Aug | A decorated scrolling page does not feel like a game. | The entire playable journey must use a fixed one-screen shell with cinematic transitions and no document scrolling. |
+| 25 Aug | Match percentage alone cannot support a psychology claim. | Separate Memory Sync from research-inspired Warmth, Conflict, Rivalry and Balance. Never call the result a diagnosis or validated assessment. |
+| 25 Aug | Research patterns can provide warmer, more meaningful types. | Use Safe-Harbour Siblings, Firecracker Family, Courtroom Companions and Independent Allies, with affectionate descriptions at every score. |
+| 25 Aug | Curiosity is strongest after a useful free result and two concrete teasers. | Free includes type, Memory Sync, two teasers and simple share card. ₹49 Exact Answer Reveal includes all paired answers/profile. ₹99 Rakhi Gift Pack adds premium poster/certificate; upgrade costs ₹50. |
+| 25 Aug | Making one gender pay excludes valid sibling/cousin relationships. | Either participant may pay. One purchase unlocks both. A sibling-gift prompt is optional and gender-neutral. |
+| 25 Aug | Fake social proof damages trust and measurement. | Display only D1-derived completed stories, recent activity, multi-battle family chains and consented Hall score. Hide zero values. |
+| 25 Aug | The fastest defensible India launch needs a genuine local operator. | Wife will genuinely own and run the India individual/sole-proprietor operation; identity, KYC, bank, support, books and tax treatment must match. |
+| 25 Aug | Unproven paid acquisition can lose money at low ticket size. | Cap family-money risk at ₹15,000, begin with roughly ₹900–₹1,000 traffic, and release spend only after funnel and viral KPIs justify it. Working gross target is ₹50,000; ₹1 lakh is stretch. |
+| 25 Aug | Display ads can reduce completion and require separate approval/scale. | Defer AdSense/display ads and Google Ads; start with organic/creator seeding and controlled Meta tests after payment reliability. |
+| 25 Aug | GitHub deployment cannot run without Cloudflare credentials. | Add properly authorised GitHub Secrets, deploy latest `main`, and verify live before further promotion or payment activation. |
 
-## Frozen MVP
+## Frozen current product
 
-- No login, email, phone or install.
-- Creator nickname + eight canonical pair questions.
-- One cryptographically random challenge link.
-- First sibling response closes the battle.
-- Match result, winner, four summary categories.
-- Free 1080×1920 result poster with tasteful domain CTA.
-- Family Court with four questions, one vote per browser session.
+- No login, email, phone or install to play.
+- Creator nickname plus eight canonical pair questions.
+- Cryptographically random private challenge link.
+- First valid sibling response completes the pair.
+- Fixed-screen animated game runtime.
+- Memory Sync plus a research-inspired relationship profile.
+- Free simple share card; ₹49 Exact Answer Reveal; ₹99 Rakhi Gift Pack.
+- One purchase belongs to the battle and unlocks for both.
+- Family Court, consent-based Hall of Fame and anonymous family-chain tracking.
 - Anonymous event funnel with referral/UTM preservation.
-- Razorpay-ready ₹49 and ₹99 upgrades; disabled without live credentials.
 - Operator dashboard protected by an admin secret.
-- 45-day intended retention.
+- Intended data retention: 45 days.
+- Payments remain disabled until live merchant approval and end-to-end verification.
 
 ## Explicitly deferred
 
-- Hindi toggle, city leaderboards, affiliates, sponsorship, Turnstile, multiple poster themes, Reels automation, price A/B tests and a reusable festival engine.
+Hindi toggle, broad/city leaderboards, AdSense, full affiliate automation, sponsorship, Turnstile, multiple extra tiers, complex AI reels, animated family map and a reusable festival engine.
+
+## Superseded terminology
+
+Older files may mention “Savage Mode,” “Full Reveal” or all eight answer rows being free. Those are historical. Current public offers are **₹49 Exact Answer Reveal** and **₹99 Rakhi Gift Pack**, with only two free answer teasers.

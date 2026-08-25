@@ -2,7 +2,9 @@
 
 [![Deploy to Cloudflare](https://github.com/ashutosh-n-pandey/rakhi-battle/actions/workflows/deploy.yml/badge.svg)](https://github.com/ashutosh-n-pandey/rakhi-battle/actions/workflows/deploy.yml)
 
-Mobile-first Rakhi sibling challenge built with Astro 7, Cloudflare Workers, D1 and deterministic browser Canvas posters. No model/API call occurs per player.
+Mobile-first Rakhi sibling game built with Astro 7, Cloudflare Workers, D1 and deterministic browser Canvas assets. No model/API call occurs per player.
+
+For project continuity and current status, start with [START_HERE.md](START_HERE.md).
 
 ## Local setup
 
@@ -33,19 +35,19 @@ npx wrangler secret put RAZORPAY_KEY_ID
 npx wrangler secret put RAZORPAY_KEY_SECRET
 ```
 
-Set `PAYMENTS_ENABLED` to `true` only after live merchant activation, policies/contact/refund details are complete, and the test flow passes.
+Set `PAYMENTS_ENABLED` to `true` only after live merchant activation, policies/contact/refund details are complete, and the full real-payment flow passes.
 
-Alternatively, the included GitHub Actions workflow deploys on `main` after repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are configured.
+GitHub Actions deploys pushes to `main` only after repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are configured with the required Worker/D1 permissions.
 
 ## Architecture
 
 - Astro server routes run in one Cloudflare Worker.
-- D1 stores expiring challenges, Family Court votes, events and payment unlocks.
-- Anonymous parent/root/generation fields support referral-chain measurement without accounts.
+- D1 stores expiring challenges, Family Court votes, events, support cases and payment unlocks.
+- Anonymous parent/root/generation fields measure referral chains without accounts.
 - Random 96-bit opaque IDs protect unlisted links from enumeration.
-- Razorpay Orders are created server-side; checkout callbacks are unlocked only after server-side HMAC verification.
-- Poster PNGs are rendered in the browser at 1080×1920.
-- `/admin` reads aggregate metrics only after an admin-token check.
-- Payment pricing is enforced on the server: ₹49 Exact Answer Reveal, ₹99 Rakhi Gift Pack and a ₹50 upgrade difference.
+- Razorpay Orders are created server-side and unlocked only after server-side HMAC verification.
+- Poster PNGs are rendered in browser Canvas at 1080×1920.
+- `/admin` exposes aggregate metrics only after an admin-token check.
+- Server pricing: ₹49 Exact Answer Reveal, ₹99 Rakhi Gift Pack and ₹50 upgrade difference.
 
-See `DECISION_LOG.md`, `docs/ANALYTICS.md` and `docs/LAUNCH_RUNBOOK.md`.
+See `PROJECT_STATE.md`, `DECISION_LOG.md` and `docs/README.md`.
