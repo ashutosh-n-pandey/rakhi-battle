@@ -4,17 +4,21 @@ Updated: 25 August 2026, UTC
 
 ## Executive state
 
-The core game is built on `main`, including the fixed-screen runtime and research-inspired reveal funnel. Code validation passes, but the newest product version is not verified live because GitHub Actions cannot deploy without Cloudflare credentials. Payments are intentionally disabled until the genuine seller completes Razorpay activation and a real end-to-end purchase test passes.
+The core game is built on `main`, including the fixed-screen runtime and research-inspired reveal funnel. On 25 August 2026 the user ran `npm run release` locally against the Rakhi Battle project: all 11 tests passed, Astro check/build completed with zero errors or warnings, D1 reported no pending migrations, and Wrangler successfully uploaded and deployed the `rakhi-battle` Worker. Cloudflare returned production Version ID `ff17c4d9-9e2f-46ab-95d2-33cd163daea5` at `https://rakhi-battle.riselikealion7.workers.dev`. Browser-level live behaviour still needs a final human smoke test. GitHub Actions automatic deployment remains broken because its Cloudflare credentials are empty. Payments remain intentionally disabled until the genuine seller completes Razorpay activation and a real end-to-end purchase test passes.
 
-## Verified repository baseline
+## Verified repository / deployment baseline
 
-- Code baseline before this governance update: `ed74ba519ffbc3f69c5eeaca34f7057b4c269fd4`.
-- Baseline message: `feat: add research-inspired sibling profiles and reveal funnel`.
-- GitHub Actions run 23: 11 tests passed; Astro build completed with zero errors and warnings.
-- Deployment step failed because both `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` were empty in the runner.
+- Product baseline: `ed74ba519ffbc3f69c5eeaca34f7057b4c269fd4`.
+- Product baseline message: `feat: add research-inspired sibling profiles and reveal funnel`.
+- Governance baseline before this state update: `a78e0c2d29703bf48bf4278c10a12230bf5981de`.
+- Manual release on 25 August 2026: 11/11 tests passed; Astro check/build completed with zero errors and warnings.
+- Remote D1 migration check: no migrations to apply.
+- Wrangler manual deploy: success.
+- Cloudflare Worker Version ID: `ff17c4d9-9e2f-46ab-95d2-33cd163daea5`.
+- Production origin: `https://rakhi-battle.riselikealion7.workers.dev`.
+- GitHub Actions remains unresolved: `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are empty in the runner, so automatic deployment still fails.
 - Repository visibility: public.
-- Production origin configured in Wrangler: `https://rakhi-battle.riselikealion7.workers.dev`.
-- Latest `main` is not verified live. The public origin may still serve an earlier manually deployed version.
+- Final creator → sibling → result browser smoke test is still required before calling the product verified live.
 
 Always reverify these facts at the start of a new session; do not treat this snapshot as live telemetry.
 
@@ -53,10 +57,10 @@ Always reverify these facts at the start of a new session; do not treat this sna
 
 | Priority | Item | State / evidence | Completion condition |
 |---|---|---|---|
-| P0 | Automatic deployment | GitHub Actions Cloudflare secrets are empty; no successful Actions deployment | Add authorized Worker/D1 token and account ID, deploy, then smoke-test latest `main` |
+| P0 | Live-version verification | Manual Wrangler deployment succeeded, but browser flow has not yet been smoke-tested | Open production and complete creator → sibling → result using two browser sessions |
 | P0 | Seller identity | Wife will genuinely operate the India business; public seller/support identity is not frozen | Seller, bank beneficiary, Razorpay KYC and website identity all match |
 | P0 | Live payments | `PAYMENTS_ENABLED=false`; live Razorpay keys absent | KYC approved, secrets stored in Cloudflare, real ₹49 success/refund/reload test passes |
-| P0 | Live-version verification | Latest product commit is not confirmed on production | Check visual/runtime markers and full two-browser flow after deployment |
+| P1 | Automatic deployment | Manual deployment works; GitHub Actions Cloudflare secrets are empty | Add authorized Worker/D1 token and account ID and get one successful Actions deployment |
 | P1 | Mobile visual QA | Quiz typography was strengthened; opening/lobby text still needs a deliberate mobile-weight review | Test 360×800, 390×844, Android/iPhone and in-app browser with zero unintended scroll |
 | P1 | Analytics accounts | D1 events exist; GA4/Meta Pixel/Cloudflare Web Analytics setup is not verified | Events fire once with attribution and consent treatment confirmed |
 | P1 | Meta launch accounts | Facebook Page, Instagram professional profile, ad account and billing are not verified complete | Connected in Business Suite and test creative opens correct attributed URL |
@@ -65,15 +69,15 @@ Always reverify these facts at the start of a new session; do not treat this sna
 
 ## Current best next task
 
-Fix GitHub → Cloudflare deployment:
+Verify the manually deployed production Worker and continue Razorpay onboarding:
 
-1. Add repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
-2. Token must have the minimum permissions needed for Worker deployment and the bound D1 database.
-3. Re-run the workflow or push a safe commit.
-4. Confirm tests/build pass and `Deploy Worker` succeeds.
-5. Verify the complete creator → sibling → result funnel on the live origin.
+1. Open `https://rakhi-battle.riselikealion7.workers.dev` on a phone/incognito browser.
+2. Confirm the landing screen visibly says Rakhi Battle and has no broken assets or unintended scrolling.
+3. Create one challenge, open its private link in a second browser/session, complete the sibling answers and reach the result.
+4. Check Pricing, Contact, Privacy, Terms, Refund and Delivery pages from production.
+5. If those pass, submit the Workers URL to Razorpay for website verification.
 
-Do not enable payments during this task.
+Do not enable payments yet.
 
 ## Owner setup sequence
 
@@ -96,6 +100,8 @@ Do not enable payments during this task.
 
 ## Last known quality evidence
 
-- 11/11 automated tests passed on the product baseline.
+- 11/11 automated tests passed in the successful local release on 25 August 2026.
 - Astro check/build passed with zero errors and warnings.
-- This governance-only update does not itself prove the live product is current.
+- Remote D1 had no pending migrations.
+- Wrangler successfully deployed production Version ID `ff17c4d9-9e2f-46ab-95d2-33cd163daea5`.
+- Browser-level end-to-end verification remains pending.
