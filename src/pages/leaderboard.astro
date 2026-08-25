@@ -1,17 +1,18 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { battleCode, db } from '../lib/server';
+import { battleCode, db, parseResult } from '../lib/server';
 
 interface HallRow {
   id: string;
   creator_name: string;
   sibling_name: string;
   score: number;
+  result_json: string;
   completed_at: string;
 }
 
 const query = await db().prepare(
-  `SELECT id, creator_name, sibling_name, score, completed_at
+  `SELECT id, creator_name, sibling_name, score, result_json, completed_at
      FROM challenges
     WHERE status = 'complete'
       AND leaderboard_creator_opt_in = 1
@@ -45,7 +46,7 @@ const leaders = query.results;
           {leaders.map((leader, index) => (
             <li class:list={{ podium: index < 3 }}>
               <span class="rank">{index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}</span>
-              <span class="pair"><strong>{leader.creator_name} × {leader.sibling_name}</strong><small>{battleCode(leader.id)} • verified completed battle</small></span>
+              <span class="pair"><strong>{leader.creator_name} × {leader.sibling_name}</strong><small>{parseResult(leader.result_json).profile?.title || 'Memory-sync pair'} • {battleCode(leader.id)}</small></span>
               <strong class="hall-score">{leader.score}%</strong>
             </li>
           ))}

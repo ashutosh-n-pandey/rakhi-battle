@@ -1,6 +1,33 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import QuizGame from '../components/QuizGame.astro';
+import { db } from '../lib/server';
+
+const [battleStats, activeStats, hallStats] = await db().batch([
+  db().prepare(`SELECT COUNT(*) AS completed,
+                       (SELECT COUNT(*) FROM (
+                          SELECT root_challenge_id
+                            FROM challenges
+                           WHERE status = 'complete' AND expires_at > CURRENT_TIMESTAMP
+                           GROUP BY root_challenge_id HAVING COUNT(*) > 1
+                        )) AS family_chains
+                  FROM challenges
+                 WHERE status = 'complete' AND expires_at > CURRENT_TIMESTAMP`),
+  db().prepare(`SELECT COUNT(DISTINCT session_id) AS active
+                  FROM events
+                 WHERE created_at >= datetime('now', '-10 minutes')
+                   AND event_name IN ('battle_start', 'challenge_open', 'challenge_complete')`),
+  db().prepare(`SELECT MAX(score) AS top_score
+                  FROM challenges
+                 WHERE status = 'complete'
+                   AND leaderboard_creator_opt_in = 1
+                   AND leaderboard_sibling_opt_in = 1
+                   AND expires_at > CURRENT_TIMESTAMP`),
+]);
+const completedBattles = Number((battleStats.results[0] as { completed?: number } | undefined)?.completed || 0);
+const familyChains = Number((battleStats.results[0] as { family_chains?: number } | undefined)?.family_chains || 0);
+const activePlayers = Number((activeStats.results[0] as { active?: number } | undefined)?.active || 0);
+const topHallScore = Number((hallStats.results[0] as { top_score?: number } | undefined)?.top_score || 0);
 ---
 <Layout gameMode>
   <div class="game-app-shell" data-game-app>
@@ -22,7 +49,13 @@ import QuizGame from '../components/QuizGame.astro';
         <p class="lobby-line">Ek hi bachpan. Do alag kahaaniyan.</p>
         <p class="lobby-copy">Mummy ki daant, remote ki ladai aur mithai ki chori—dekho tum dono ko kya yaad hai.</p>
         <button class="game-cta" type="button" data-enter-game><span>Apni Rakhi Battle shuru karo</span><b>PLAY →</b></button>
-        <div class="game-proof"><span>⚡ 60 sec</span><span>🎨 Free poster</span><span>🔒 No signup</span></div>
+        <div class="game-proof"><span>⚡ 60 sec</span><span>🎨 Free result card</span><span>🔒 No signup</span></div>
+        {(completedBattles > 0 || activePlayers > 0 || topHallScore > 0) && <div class="live-game-proof" aria-label="Live Rakhi Battle activity">
+          {completedBattles > 0 && <span><i></i><b>{completedBattles.toLocaleString('en-IN')}</b> stories compared</span>}
+          {activePlayers > 0 && <span><b>{activePlayers}</b> active in 10 min</span>}
+          {familyChains > 1 && <span><b>{familyChains}</b> family chains</span>}
+          {topHallScore > 0 && <a href="/leaderboard">Hall best <b>{topHallScore}%</b> →</a>}
+        </div>}
       </div>
 
       <section class="game-resume hidden" data-recent-battles>

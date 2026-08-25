@@ -46,6 +46,6 @@ Alternatively, the included GitHub Actions workflow deploys on `main` after repo
 - Razorpay Orders are created server-side; checkout callbacks are unlocked only after server-side HMAC verification.
 - Poster PNGs are rendered in the browser at 1080×1920.
 - `/admin` reads aggregate metrics only after an admin-token check.
-- Payment pricing is enforced on the server, including the ₹50 Savage-to-Full upgrade difference.
+- Payment pricing is enforced on the server: ₹49 Exact Answer Reveal, ₹99 Rakhi Gift Pack and a ₹50 upgrade difference.
 
 See `DECISION_LOG.md`, `docs/ANALYTICS.md` and `docs/LAUNCH_RUNBOOK.md`.

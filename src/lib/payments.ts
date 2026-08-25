@@ -1,3 +1,5 @@
+// Stable database codes retained for existing purchases:
+// `savage` = Exact Answer Reveal, `full` = Rakhi Gift Pack.
 export type PaidTier = 'savage' | 'full';
 
 export const PRICES_PAISE = {

@@ -3,17 +3,17 @@ import Layout from '../layouts/Layout.astro';
 import { env } from 'cloudflare:workers';
 const paymentsEnabled = String(env.PAYMENTS_ENABLED) === 'true';
 ---
-<Layout title="Pricing — Rakhi Battle 2026" description="The core Rakhi Battle and festive poster are free. Optional one-time keepsake upgrades cost ₹49 or ₹99.">
+<Layout title="Pricing — Rakhi Battle 2026" description="Play free, reveal every exact answer for ₹49, or make the complete result a ₹99 Rakhi Gift Pack.">
   <article class="shell legal pricing-page">
     <p class="eyebrow">Clear, one-time pricing</p>
-    <h1>Play free. Pay only for extra keepsakes.</h1>
+    <h1>Play free. Pay only to open the private story.</h1>
     <p class="legal-lead">No subscription, no account and no charge to finish the eight-question battle.</p>
     <div class="pricing-grid">
-      <section class="price-card"><span>FREE</span><h2>₹0</h2><ul><li>Complete eight shared-childhood questions</li><li>Overall score and warm bond title</li><li>All eight MATCH/OBJECTION results</li><li>Free 1080 × 1920 Story poster</li><li>Family Court, Rakhi Chain and Hall of Fame</li></ul><a class="btn btn-primary btn-block" href="/#play">Start free</a></section>
-      <section class="price-card"><span>SAVAGE</span><h2>₹49</h2><ul><li>Everything in Free</li><li>Playful savage verdict</li><li>Premium Story poster</li><li>Bond-title keepsake</li></ul></section>
-      <section class="price-card featured-price"><span>FULL REVEAL</span><h2>₹99</h2><ul><li>Everything in Savage</li><li>Both exact answers for all eight moments</li><li>Sentimental Story poster</li><li>Downloadable certificate</li><li>Upgrade from Savage for ₹50</li></ul></section>
+      <section class="price-card"><span>FREE</span><h2>₹0</h2><ul><li>Complete eight sibling questions</li><li>Memory-sync score and relationship type</li><li>Two MATCH/OBJECTION teasers</li><li>Simple shareable result card</li><li>Rakhi Chain and optional Hall of Fame</li></ul><a class="btn btn-primary btn-block" href="/">Start free</a></section>
+      <section class="price-card"><span>EXACT ANSWER REVEAL</span><h2>₹49</h2><ul><li>Everything in Free</li><li>Both exact answers for all eight questions</li><li>Warmth, conflict, rivalry and balance profile</li><li>Playful private verdict</li></ul></section>
+      <section class="price-card featured-price"><span>RAKHI GIFT PACK</span><h2>₹99</h2><ul><li>Everything in Exact Answer Reveal</li><li>Premium festive Story poster</li><li>Downloadable sibling certificate</li><li>One purchase opens it for both siblings</li><li>Upgrade from Reveal for ₹50</li></ul></section>
     </div>
-    <div class="notice"><b>Checkout status:</b> {paymentsEnabled ? 'Secure one-time checkout is available from a completed battle result.' : 'Optional payments remain unavailable until the secure payment account is activated. The free game and poster work without payment.'}</div>
+    <div class="notice"><b>Checkout status:</b> {paymentsEnabled ? 'Secure one-time checkout is available from a completed battle result.' : 'Payments are being activated. The free game and result card continue to work.'}</div>
     <h2>One battle, both siblings</h2>
     <p>An upgrade belongs to the battle, not one person. After verified payment, both siblings can open the same private result link and use the unlocked keepsakes.</p>
   </article>

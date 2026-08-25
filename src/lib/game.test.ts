@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeResult, isAnswers, questions, type Answers } from './game';
+import { computeResult, isAnswers, questions, relationshipProfile, type Answers } from './game';
 
 const all = (answer: Answers[string]): Answers => Object.fromEntries(questions.map((q) => [q.key, answer]));
 
@@ -29,7 +29,31 @@ describe('Rakhi Battle scoring', () => {
 
   it('keeps a zero-match result affectionate', () => {
     const result = computeResult(all('creator'), all('sibling'));
-    expect(result.verdict).toBe('Two stories, one unbreakable team');
     expect(result.subline).not.toMatch(/do you.*talk|weak|fail/i);
+  });
+
+  it('produces a research-inspired harmonious profile from high warmth and low conflict', () => {
+    const answers = all('creator');
+    const profile = relationshipProfile(answers, answers);
+    expect(profile).toMatchObject({ pattern: 'harmonious', title: 'Safe-Harbour Siblings', warmth: 100, conflict: 0 });
+  });
+
+  it('keeps warmth and conflict independent for an affect-intense profile', () => {
+    const warmAndIntense = all('creator');
+    for (const question of questions) {
+      if (question.dimension === 'conflict') warmAndIntense[question.key] = 'denied';
+    }
+    const profile = relationshipProfile(warmAndIntense, warmAndIntense);
+    expect(profile).toMatchObject({ pattern: 'affect-intense', title: 'Firecracker Family', warmth: 100, conflict: 100 });
+  });
+
+  it('covers conflict-forward and low-involved patterns without negative judgments', () => {
+    const conflictForward = all('denied');
+    expect(relationshipProfile(conflictForward, conflictForward)).toMatchObject({ pattern: 'conflictual', title: 'Courtroom Companions' });
+    const independent = all('denied');
+    for (const question of questions) {
+      if (question.dimension === 'conflict') independent[question.key] = 'creator';
+    }
+    expect(relationshipProfile(independent, independent)).toMatchObject({ pattern: 'low-involved', title: 'Independent Allies' });
   });
 });

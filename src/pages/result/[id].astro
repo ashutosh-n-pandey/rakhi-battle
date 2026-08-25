@@ -15,13 +15,14 @@ const result = parseResult(challenge.result_json);
 const tier = await paidTier(id);
 const winner = getWinnerName(result, challenge.creator_name, siblingName);
 const title = bondTitle(result);
-const creatorAnswers = tier === 'full' ? parseAnswers(challenge.creator_answers) : null;
-const siblingAnswers = tier === 'full' ? parseAnswers(challenge.sibling_answers) : null;
+const answersUnlocked = tier === 'savage' || tier === 'full';
+const creatorAnswers = answersUnlocked ? parseAnswers(challenge.creator_answers) : null;
+const siblingAnswers = answersUnlocked ? parseAnswers(challenge.sibling_answers) : null;
 const comparisons = questions.map((question) => ({
   ...question,
   matched: result.agreements.includes(question.key),
-  creator: creatorAnswers ? displayAnswer(creatorAnswers[question.key], challenge.creator_name, siblingName) : null,
-  sibling: siblingAnswers ? displayAnswer(siblingAnswers[question.key], challenge.creator_name, siblingName) : null,
+  creator: creatorAnswers ? displayAnswer(question, creatorAnswers[question.key], 'creator') : null,
+  sibling: siblingAnswers ? displayAnswer(question, siblingAnswers[question.key], 'sibling') : null,
 }));
 const rootId = challenge.root_challenge_id || id;
 const familyCount = await db().prepare(
@@ -30,6 +31,10 @@ const familyCount = await db().prepare(
 ).bind(rootId, rootId).first<{ total: number }>();
 const chainSize = Number(familyCount?.total || 1);
 const familyCrown = chainSize >= 3;
+const publicTotals = await db().prepare(
+  `SELECT COUNT(*) AS completed FROM challenges WHERE status = 'complete' AND expires_at > CURRENT_TIMESTAMP`
+).first<{ completed: number }>();
+const completedStories = Number(publicTotals?.completed || 0);
 const posterData = {
   id,
   creator: challenge.creator_name,
@@ -75,9 +80,17 @@ const posterData = {
         <p class="eyebrow">🪔 The Rakhi verdict is here</p>
         <h2>{challenge.creator_name} <span class="muted">×</span> {siblingName}</h2>
         <div class="score-ring score-ring-reveal" style={`--score:${result.percent * 3.6}deg`}><strong>{result.percent}%</strong></div>
-        <span class="winner-pill">🏵️ {title}</span>
+        <span class="winner-pill">🏵️ {result.profile?.researchLabel || 'Memory-sync result'}</span>
         <h3 class="result-verdict">{result.verdict}</h3>
         <p class="muted">{result.subline}</p>
+        {result.profile && (
+          <div class="profile-snapshot" aria-label="Research-inspired relationship profile">
+            <span><b>{result.profile.warmth}%</b> warmth</span>
+            <span><b>{result.profile.conflict}%</b> conflict</span>
+            <span><b>{result.profile.rivalry}%</b> rivalry</span>
+          </div>
+        )}
+        <small class="research-note">Research-inspired entertainment • not a psychological diagnosis</small>
         <div class="result-grid compact-result-grid">
           <div class="result-item"><span>Same memories</span><strong>{result.matches} / {result.total}</strong></div>
           <div class="result-item"><span>Plot twists</span><strong>{result.total - result.matches} / {result.total}</strong></div>
@@ -111,9 +124,11 @@ const posterData = {
             <div><span>{siblingName}</span><b>██████</b></div>
             <em>Exact answers locked</em>
           </div>
-          <button class="btn btn-primary btn-block unlock-main" type="button" data-buy="full">See exactly what both answered — ₹99</button>
-          <button class="btn btn-gold btn-block" type="button" data-buy="savage">Unlock our savage verdict — ₹49</button>
-          <button class="continue-free" type="button" data-continue-free>Continue with free result →</button>
+          <button class="btn btn-primary btn-block unlock-main" type="button" data-buy="savage">Reveal every exact answer — ₹49</button>
+          <div class="gift-lock-preview" aria-hidden="true"><img src="/images/rakhi-celebration.webp" alt="" /><span>Premium Rakhi Gift poster</span></div>
+          <button class="btn btn-gold btn-block" type="button" data-buy="full">Make it a Rakhi Gift Pack — ₹99</button>
+          <button class="gift-hint" type="button" data-gift-hint>🎁 Ask my sibling to gift this unlock</button>
+          <button class="continue-free" type="button" data-continue-free>Take my free result card →</button>
           <p class="checkout-note">One unlock belongs to this battle. Both siblings can open it from the same link.</p>
           <p class="status" data-pay-status></p>
         </div>
@@ -122,12 +137,12 @@ const posterData = {
 
     <section class="result-stage result-poster-stage" data-stage="poster">
       <div class="stage-card poster-section">
-        <p class="eyebrow">Included free • ready to share</p>
-        <h2>Your Rakhi Story poster</h2>
+        <p class="eyebrow">Included free • keeps the challenge moving</p>
+        <h2>Your shareable result card</h2>
         <div class="poster-preview game-poster"><canvas data-canvas="free" width="1080" height="1920"></canvas></div>
         <div class="share-actions">
-          <button class="btn btn-primary" data-share="free">Share poster</button>
-          <button class="btn btn-gold" data-download="free">Download</button>
+          <button class="btn btn-primary" data-share="free">Share result</button>
+          <button class="btn btn-gold" data-download="free">Download card</button>
         </div>
         <p class="status" data-download-status></p>
         <button class="continue-free" type="button" data-go="paid">Continue the result →</button>
@@ -139,63 +154,65 @@ const posterData = {
         {(tier === 'savage' || tier === 'full') && (
           <section class="stage-card premium unlocked-block paid-game-panel" data-payment-zone data-paid-panel>
             <span class="unlock-stamp">UNLOCKED</span>
-            <p class="eyebrow">Savage verdict</p>
+            <p class="eyebrow">Your sibling relationship profile</p>
             <h2>{title}</h2>
             <blockquote>{posterData.savage}</blockquote>
-            <p class="muted">Savage on the game, soft on the bond.</p>
-            <div class="poster-preview premium-poster"><canvas data-canvas="savage" width="1080" height="1920"></canvas></div>
-            <div class="share-actions">
-              <button class="btn btn-primary" data-share="savage">Share premium</button>
-              <button class="btn btn-gold" data-download="savage">Download</button>
-            </div>
+            {result.profile && <div class="profile-bars">
+              <div><span>Warmth</span><i><b style={`width:${result.profile.warmth}%`}></b></i><em>{result.profile.warmth}%</em></div>
+              <div><span>Conflict</span><i><b style={`width:${result.profile.conflict}%`}></b></i><em>{result.profile.conflict}%</em></div>
+              <div><span>Rivalry</span><i><b style={`width:${result.profile.rivalry}%`}></b></i><em>{result.profile.rivalry}%</em></div>
+              <div><span>Balance</span><i><b style={`width:${result.profile.balance}%`}></b></i><em>{result.profile.balance}%</em></div>
+            </div>}
+            <p class="research-note">Based on established sibling-research dimensions; designed for festive entertainment, not diagnosis.</p>
             {tier === 'savage' && (
               <div class="upgrade-strip">
-                <span><b>The exact answers are still hiding.</b><small>You already paid ₹49.</small></span>
-                <button class="btn btn-primary" data-buy="full">Reveal all for ₹50</button>
+                <span><b>Turn this reveal into a Rakhi gift.</b><small>You already paid ₹49.</small></span>
+                <button class="btn btn-primary" data-buy="full">Add Gift Pack ₹50</button>
               </div>
             )}
             <p class="status" data-pay-status></p>
-            <button class="btn btn-ghost btn-block" type="button" data-paid-next>{tier === 'full' ? 'Open exact answers →' : 'Finish & choose next move →'}</button>
+            <button class="btn btn-ghost btn-block" type="button" data-paid-next>Open exact answers →</button>
           </section>
         )}
 
-        {tier === 'full' && creatorAnswers && siblingAnswers && (
+        {answersUnlocked && creatorAnswers && siblingAnswers && (
           <>
             {comparisons.map((item, index) => (
               <section class="stage-card premium full-reveal paid-game-panel" data-paid-panel>
-                <p class="eyebrow">Full Reveal • memory {index + 1} / {comparisons.length}</p>
+                <p class="eyebrow">Exact Answer Reveal • {index + 1} / {comparisons.length}</p>
                 <h2>Your two versions, side by side.</h2>
                 <article class="exact-row exact-game-card">
                   <header><span>{item.emoji}</span><b>{item.short}</b><em>{item.matched ? 'MATCH' : 'OBJECTION'}</em></header>
                   <div><span>{challenge.creator_name}<strong>{item.creator}</strong></span><span>{siblingName}<strong>{item.sibling}</strong></span></div>
                 </article>
-                <button class="btn btn-primary btn-block" type="button" data-paid-next>{index + 1 === comparisons.length ? 'Open your keepsakes →' : 'Next answer →'}</button>
+                <button class="btn btn-primary btn-block" type="button" data-paid-next>{index + 1 === comparisons.length ? (tier === 'full' ? 'Open your Rakhi gifts →' : 'Finish the reveal →') : 'Next answer →'}</button>
               </section>
             ))}
-            <section class="stage-card premium full-reveal paid-game-panel" data-paid-panel>
-              <p class="eyebrow">Full Reveal • keepsakes unlocked</p>
-              <h2>Take your Rakhi story with you.</h2>
-              <div class="keepsake-grid game-keepsakes">
-                <article>
-                  <div class="poster-preview"><canvas data-canvas="sentimental" width="1080" height="1920"></canvas></div>
-                  <button class="btn btn-gold btn-block" data-download="sentimental">Download poster</button>
-                </article>
-                <article>
-                  <div class="certificate-preview"><canvas data-canvas="certificate" width="1600" height="1131"></canvas></div>
-                  <button class="btn btn-primary btn-block" data-download="certificate">Certificate</button>
-                </article>
-              </div>
-              <button class="btn btn-ghost btn-block" type="button" data-paid-next>Finish & choose next move →</button>
-            </section>
+            {tier === 'full' && <section class="stage-card premium full-reveal paid-game-panel" data-paid-panel>
+                <p class="eyebrow">Rakhi Gift Pack • keepsakes unlocked</p>
+                <h2>A gift both of you can keep.</h2>
+                <div class="keepsake-grid game-keepsakes">
+                  <article>
+                    <div class="poster-preview"><canvas data-canvas="sentimental" width="1080" height="1920"></canvas></div>
+                    <button class="btn btn-gold btn-block" data-download="sentimental">Premium poster</button>
+                  </article>
+                  <article>
+                    <div class="certificate-preview"><canvas data-canvas="certificate" width="1600" height="1131"></canvas></div>
+                    <button class="btn btn-primary btn-block" data-download="certificate">Sibling certificate</button>
+                  </article>
+                </div>
+                <button class="btn btn-ghost btn-block" type="button" data-paid-next>Finish & choose next move →</button>
+              </section>}
           </>
         )}
 
         {tier === null && (
           <section class="stage-card final-upgrade premium paid-game-panel" data-payment-zone data-paid-panel>
-            <p class="eyebrow">One last memory is still locked</p>
-            <h2>Preserve both versions of your childhood.</h2>
-            <p>See every exact answer, plus Savage Mode, a sentimental poster and your sibling certificate.</p>
-            <button class="btn btn-primary btn-block" data-buy="full">Unlock the complete memory box — ₹99</button>
+            <p class="eyebrow">Your sibling's version is still locked</p>
+            <h2>Do you really know what they answered?</h2>
+            <p>Reveal every exact answer for ₹49, or turn the complete reveal and premium keepsakes into a Rakhi gift.</p>
+            <button class="btn btn-primary btn-block" data-buy="savage">Reveal all eight answers — ₹49</button>
+            <button class="btn btn-gold btn-block" data-buy="full">Rakhi Gift Pack — ₹99</button>
             <p class="status" data-pay-status></p>
             <button class="btn btn-ghost btn-block" type="button" data-paid-next>Finish with free result →</button>
           </section>
@@ -207,9 +224,12 @@ const posterData = {
       <div class="stage-card final-game-menu">
         <p class="eyebrow">🏆 Battle complete</p>
         <h2>Ab kahaani ko aage badhao.</h2>
+        {completedStories > 0 && <p class="viral-proof"><b>{completedStories.toLocaleString('en-IN')}</b> sibling stories compared • yours is now part of the chain</p>}
         <p class="final-bond-line"><strong>{challenge.creator_name} × {siblingName}</strong><span>{result.percent}% • {title}</span></p>
-        {challenge.leaderboard_creator_opt_in === 1 && challenge.leaderboard_sibling_opt_in === 1 && (
-          <a class="final-choice final-hall-choice" href="/leaderboard"><span>🏵️</span><b>Hall of Fame</b><small>{battleCode(id)} • view your rank</small><i>→</i></a>
+        {challenge.leaderboard_creator_opt_in === 1 && challenge.leaderboard_sibling_opt_in === 1 ? (
+          <a class="final-choice final-hall-choice" href="/leaderboard"><span>🏵️</span><b>Your Hall of Fame rank</b><small>{battleCode(id)} • compare opted-in scores</small><i>→</i></a>
+        ) : (
+          <a class="final-choice final-hall-choice" href="/leaderboard"><span>🏵️</span><b>See the Rakhi Hall</b><small>Real scores • only with both siblings' consent</small><i>→</i></a>
         )}
         <div class="final-choice-grid">
           <a class="final-choice" href={`/?ref=chain&parent=${id}`} data-repeat><span>🧵</span><b>Grow the Rakhi Chain</b><small>{posterData.chainTitle} • {chainSize} completed</small><i>→</i></a>
@@ -304,7 +324,7 @@ const posterData = {
     gameRoot.querySelector('[data-start-memories]')?.addEventListener('click', () => startMemories('sample'));
     gameRoot.querySelector('[data-continue-free]')?.addEventListener('click', () => {
       window.rakhiTrack('free_result_continue', {}, gameRoot.dataset.id || null);
-      startMemories('all');
+      go('poster');
     });
     memoryNext.addEventListener('click', () => {
       if (memoryIndex + 1 < memorySequence.length) {
@@ -353,8 +373,16 @@ const posterData = {
     const ctx = canvas.getContext('2d'); const w = canvas.width; const h = canvas.height;
     const colors = mode === 'savage' ? ['#241117', '#7d1538', '#d92f73'] : mode === 'sentimental' ? ['#7d1538', '#b96b73', '#f5b56b'] : ['#4c0b25', '#7d1538', '#a32950'];
     const gradient = ctx.createLinearGradient(0, 0, w, h); colors.forEach((color, i) => gradient.addColorStop(i / 2, color)); ctx.fillStyle = gradient; ctx.fillRect(0, 0, w, h);
-    await addArt(ctx, w, 470);
+    if (mode !== 'free') await addArt(ctx, w, 470);
     const shade = ctx.createLinearGradient(0, 180, 0, 530); shade.addColorStop(0, 'rgba(76,11,37,.06)'); shade.addColorStop(1, colors[0]); ctx.fillStyle = shade; ctx.fillRect(0, 0, w, 560);
+    if (mode === 'free') {
+      ctx.textAlign = 'center';
+      ctx.strokeStyle = '#ffd166'; ctx.lineWidth = 12; ctx.setLineDash([30, 18]);
+      ctx.beginPath(); ctx.moveTo(80, 310); ctx.lineTo(390, 310); ctx.moveTo(690, 310); ctx.lineTo(1000, 310); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(w / 2, 310, 132, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#7d1538'; ctx.beginPath(); ctx.arc(w / 2, 310, 96, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#fff7e8'; ctx.font = '900 74px Arial'; ctx.fillText('र', w / 2, 336);
+    }
     ctx.textAlign = 'center'; ctx.fillStyle = '#ffd166'; ctx.font = '900 52px Arial'; ctx.fillText(mode === 'sentimental' ? 'RAKHI KEEPSAKE 2026' : 'RAKHI BATTLE 2026', w / 2, 92);
     ctx.fillStyle = '#fff7e8'; fit(ctx, posterData.creator.toUpperCase(), 900, 102); ctx.fillText(posterData.creator.toUpperCase(), w / 2, 570);
     ctx.fillStyle = '#ffd166'; ctx.font = '900 52px Arial'; ctx.fillText('×', w / 2, 650);
@@ -416,6 +444,13 @@ const posterData = {
   }));
   document.querySelector('[data-court-link]')?.addEventListener('click', () => window.rakhiTrack('family_court_create', {}, id));
   document.querySelectorAll('[data-repeat]').forEach((link) => link.addEventListener('click', () => window.rakhiTrack('repeat_battle_click', { from: 'result' }, id)));
+  document.querySelector('[data-gift-hint]')?.addEventListener('click', async () => {
+    const url = `${location.origin}/result/${id}?ref=rakhi_gift_hint`;
+    const text = `Rakhi gift idea 🎁 Unlock our exact answers and premium keepsakes for both of us: ${url}`;
+    window.rakhiTrack('gift_click', { from: 'result_paywall' }, id);
+    if (navigator.share) await navigator.share({ title: 'Our Rakhi Battle gift', text, url });
+    else { await navigator.clipboard.writeText(text); document.querySelector('[data-gift-hint]').textContent = 'Gift hint copied ✓'; }
+  });
 
   async function loadRazorpay() {
     if (window.Razorpay) return;
@@ -427,7 +462,7 @@ const posterData = {
     try {
       const response = await fetch('/api/checkout/order', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ challenge_id: id, tier: requestedTier }) });
       const order = await response.json(); if (!response.ok) throw new Error(order.error || 'Checkout is not active yet.'); await loadRazorpay();
-      const checkout = new window.Razorpay({ key: order.key_id, amount: order.amount, currency: 'INR', order_id: order.order_id, name: 'Rakhi Battle 2026', description: requestedTier === 'full' ? (order.amount === 5000 ? 'Full Reveal upgrade' : 'Full Reveal') : 'Savage Mode', theme: { color: '#7d1538' }, handler: async (payment) => {
+      const checkout = new window.Razorpay({ key: order.key_id, amount: order.amount, currency: 'INR', order_id: order.order_id, name: 'Rakhi Battle 2026', description: requestedTier === 'full' ? (order.amount === 5000 ? 'Rakhi Gift Pack upgrade' : 'Rakhi Gift Pack') : 'Exact Answer Reveal', theme: { color: '#7d1538' }, handler: async (payment) => {
         const verify = await fetch('/api/checkout/verify', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payment) }); if (!verify.ok) throw new Error('Payment verification failed'); window.rakhiTrack(`${requestedTier === 'full' ? 'full_reveal' : 'savage'}_purchase`, { amount: order.amount }, id); location.reload();
       }}); checkout.open(); if (status) status.textContent = '';
     } catch (error) { if (status) status.textContent = error instanceof Error ? error.message : 'Checkout unavailable.'; }

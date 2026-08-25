@@ -7,7 +7,7 @@ describe('payment entitlement quotes', () => {
     expect(quoteCheckout('full', null)).toEqual({ amount: PRICES_PAISE.full, tier: 'full', upgradeFrom: null });
   });
 
-  it('charges only the difference when Savage upgrades to Full Reveal', () => {
+  it('charges only the difference when Reveal upgrades to the Gift Pack', () => {
     expect(quoteCheckout('full', 'savage')).toEqual({
       amount: PRICES_PAISE.savageToFull,
       tier: 'full',

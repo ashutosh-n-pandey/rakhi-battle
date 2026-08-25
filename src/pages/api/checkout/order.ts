@@ -11,7 +11,7 @@ const runtimeEnv = env as typeof env & {
 export const POST: APIRoute = async ({ request }) => {
   try {
     if (String(runtimeEnv.PAYMENTS_ENABLED) !== 'true' || !runtimeEnv.RAZORPAY_KEY_ID || !runtimeEnv.RAZORPAY_KEY_SECRET) {
-      return json({ error: 'Paid upgrades are being activated. The free game and poster are fully available.' }, 503);
+      return json({ error: 'Paid reveals are being activated. Your free result card is ready.' }, 503);
     }
     const body = await readJson(request) as Record<string, unknown>;
     const tier: PaidTier | null = body.tier === 'full' ? 'full' : body.tier === 'savage' ? 'savage' : null;

@@ -17,8 +17,8 @@ export const GET: APIRoute = async ({ params }) => {
     result,
     paid_tier: tier,
   };
-  if (tier) response.savage_verdict = savageVerdict(result, challenge.creator_name, challenge.sibling_name);
-  if (tier === 'full') {
+  if (tier) {
+    response.savage_verdict = savageVerdict(result, challenge.creator_name, challenge.sibling_name);
     response.creator_answers = parseAnswers(challenge.creator_answers);
     response.sibling_answers = parseAnswers(challenge.sibling_answers);
   }

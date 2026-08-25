@@ -79,7 +79,7 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
     const options = root.querySelector<HTMLElement>('[data-options]')!;
     const error = root.querySelector<HTMLElement>('[data-error]')!;
     const answers: Answers = {};
-    const draftKey = `rb_quiz_${role}_${challengeId || 'new'}`;
+    const draftKey = `rb_quiz_v2_${role}_${challengeId || 'new'}`;
     let playerName = '';
     const hasHallChoice = root.querySelectorAll('[data-hall-value]').length > 0;
     let leaderboardOptIn = hasHallChoice;
