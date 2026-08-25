@@ -49,6 +49,7 @@ const posterData = {
   title={`${challenge.creator_name} × ${siblingName}: ${result.percent}% Rakhi Battle`}
   description="Ek hi bachpan. Do alag kahaaniyan. See this sibling pair's Rakhi Battle verdict."
   noindex
+  gameMode
 >
   <div
     class="result-game-shell"
@@ -134,9 +135,9 @@ const posterData = {
     </section>
 
     <section class="result-stage result-paid-stage" data-stage="paid">
-      <div class="stage-scroll">
+      <div class="paid-game-deck" data-paid-deck>
         {(tier === 'savage' || tier === 'full') && (
-          <section class="stage-card premium unlocked-block" data-payment-zone>
+          <section class="stage-card premium unlocked-block paid-game-panel" data-payment-zone data-paid-panel>
             <span class="unlock-stamp">UNLOCKED</span>
             <p class="eyebrow">Savage verdict</p>
             <h2>{title}</h2>
@@ -154,75 +155,69 @@ const posterData = {
               </div>
             )}
             <p class="status" data-pay-status></p>
+            <button class="btn btn-ghost btn-block" type="button" data-paid-next>{tier === 'full' ? 'Open exact answers →' : 'Finish & choose next move →'}</button>
           </section>
         )}
 
         {tier === 'full' && creatorAnswers && siblingAnswers && (
-          <section class="stage-card premium full-reveal">
-            <p class="eyebrow">Full Reveal • private to this link</p>
-            <h2>Your two versions, side by side.</h2>
-            <div class="exact-list">
-              {comparisons.map((item) => (
-                <article class="exact-row">
+          <>
+            {comparisons.map((item, index) => (
+              <section class="stage-card premium full-reveal paid-game-panel" data-paid-panel>
+                <p class="eyebrow">Full Reveal • memory {index + 1} / {comparisons.length}</p>
+                <h2>Your two versions, side by side.</h2>
+                <article class="exact-row exact-game-card">
                   <header><span>{item.emoji}</span><b>{item.short}</b><em>{item.matched ? 'MATCH' : 'OBJECTION'}</em></header>
                   <div><span>{challenge.creator_name}<strong>{item.creator}</strong></span><span>{siblingName}<strong>{item.sibling}</strong></span></div>
                 </article>
-              ))}
-            </div>
-            <h3 class="keepsake-heading">Two more keepsakes, included</h3>
-            <div class="keepsake-grid">
-              <article>
-                <div class="poster-preview"><canvas data-canvas="sentimental" width="1080" height="1920"></canvas></div>
-                <button class="btn btn-gold btn-block" data-download="sentimental">Download sentimental poster</button>
-              </article>
-              <article>
-                <div class="certificate-preview"><canvas data-canvas="certificate" width="1600" height="1131"></canvas></div>
-                <button class="btn btn-primary btn-block" data-download="certificate">Download certificate</button>
-              </article>
-            </div>
-          </section>
+                <button class="btn btn-primary btn-block" type="button" data-paid-next>{index + 1 === comparisons.length ? 'Open your keepsakes →' : 'Next answer →'}</button>
+              </section>
+            ))}
+            <section class="stage-card premium full-reveal paid-game-panel" data-paid-panel>
+              <p class="eyebrow">Full Reveal • keepsakes unlocked</p>
+              <h2>Take your Rakhi story with you.</h2>
+              <div class="keepsake-grid game-keepsakes">
+                <article>
+                  <div class="poster-preview"><canvas data-canvas="sentimental" width="1080" height="1920"></canvas></div>
+                  <button class="btn btn-gold btn-block" data-download="sentimental">Download poster</button>
+                </article>
+                <article>
+                  <div class="certificate-preview"><canvas data-canvas="certificate" width="1600" height="1131"></canvas></div>
+                  <button class="btn btn-primary btn-block" data-download="certificate">Certificate</button>
+                </article>
+              </div>
+              <button class="btn btn-ghost btn-block" type="button" data-paid-next>Finish & choose next move →</button>
+            </section>
+          </>
         )}
 
         {tier === null && (
-          <section class="stage-card final-upgrade premium" data-payment-zone>
+          <section class="stage-card final-upgrade premium paid-game-panel" data-payment-zone data-paid-panel>
             <p class="eyebrow">One last memory is still locked</p>
             <h2>Preserve both versions of your childhood.</h2>
             <p>See every exact answer, plus Savage Mode, a sentimental poster and your sibling certificate.</p>
             <button class="btn btn-primary btn-block" data-buy="full">Unlock the complete memory box — ₹99</button>
             <p class="status" data-pay-status></p>
+            <button class="btn btn-ghost btn-block" type="button" data-paid-next>Finish with free result →</button>
           </section>
         )}
-        <button class="btn btn-ghost btn-block" type="button" data-go="final">Finish & choose what happens next →</button>
       </div>
     </section>
 
     <section class="result-stage result-final-stage" data-stage="final">
-      <div class="stage-scroll final-grid">
+      <div class="stage-card final-game-menu">
+        <p class="eyebrow">🏆 Battle complete</p>
+        <h2>Ab kahaani ko aage badhao.</h2>
+        <p class="final-bond-line"><strong>{challenge.creator_name} × {siblingName}</strong><span>{result.percent}% • {title}</span></p>
         {challenge.leaderboard_creator_opt_in === 1 && challenge.leaderboard_sibling_opt_in === 1 && (
-          <a class="hall-result-banner" href="/leaderboard">
-            <span>🏵️</span>
-            <span><strong>You made the Rakhi Hall of Fame!</strong><small>{battleCode(id)} • See where your score ranks</small></span>
-            <b>View →</b>
-          </a>
+          <a class="final-choice final-hall-choice" href="/leaderboard"><span>🏵️</span><b>Hall of Fame</b><small>{battleCode(id)} • view your rank</small><i>→</i></a>
         )}
-        <section class="chain-card">
-          <div>
-            <p class="eyebrow">🧵 Your Rakhi Chain</p>
-            <h2>{posterData.chainTitle}</h2>
-            <p>{chainSize} completed {chainSize === 1 ? 'battle' : 'battles'} in this family chain. Every new player carries your seed forward.</p>
-          </div>
-          {familyCrown && <div class="family-crown" aria-label="Family Crown unlocked"><span>👑</span><b>Family Crown</b></div>}
-          <a class="btn btn-gold" href={`/?ref=chain&parent=${id}`} data-repeat>Challenge another sibling</a>
-        </section>
-        <a class="court-banner" href={`/court/${id}?ref=family_court&utm_source=family_court&utm_campaign=rakhi2026`} data-court-link>
-          <p class="eyebrow">⚖️ Family Court</p>
-          <h3>Mithai is sweet. This dispute is not.</h3>
-          <p>Summon cousins, friends and family to vote →</p>
-        </a>
-        <div class="action-stack result-actions">
-          <a class="btn btn-primary" href={`/?ref=result_replay&parent=${id}`} data-repeat>Start a new Rakhi Battle</a>
-          <button class="btn btn-ghost" type="button" data-go="score">Replay this result</button>
+        <div class="final-choice-grid">
+          <a class="final-choice" href={`/?ref=chain&parent=${id}`} data-repeat><span>🧵</span><b>Grow the Rakhi Chain</b><small>{posterData.chainTitle} • {chainSize} completed</small><i>→</i></a>
+          <a class="final-choice" href={`/court/${id}?ref=family_court&utm_source=family_court&utm_campaign=rakhi2026`} data-court-link><span>⚖️</span><b>Open Family Court</b><small>Let the family settle it</small><i>→</i></a>
         </div>
+        {familyCrown && <span class="final-crown">👑 Family Crown unlocked</span>}
+        <a class="btn btn-primary btn-block" href={`/?ref=result_replay&parent=${id}`} data-repeat>Start a new Rakhi Battle</a>
+        <button class="continue-free" type="button" data-go="score">Replay this result</button>
       </div>
     </section>
 
@@ -255,6 +250,13 @@ const posterData = {
     let memoryMode: 'sample' | 'all' = 'sample';
     let memorySequence: HTMLElement[] = [];
     let memoryIndex = 0;
+    const paidPanels = [...gameRoot.querySelectorAll<HTMLElement>('[data-paid-panel]')];
+    let paidPanelIndex = 0;
+
+    function showPaidPanel(index: number) {
+      paidPanelIndex = Math.max(0, Math.min(index, paidPanels.length - 1));
+      paidPanels.forEach((panel, panelIndex) => panel.classList.toggle('is-active', panelIndex === paidPanelIndex));
+    }
 
     function go(name: string) {
       const next = stages.find((stage) => stage.dataset.stage === name);
@@ -264,7 +266,7 @@ const posterData = {
       const position = Math.max(0, order.indexOf(name));
       const dotPosition = Math.min(progressDots.length - 1, Math.floor(position * progressDots.length / order.length));
       progressDots.forEach((dot, index) => dot.classList.toggle('is-active', index <= dotPosition));
-      gameRoot.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      if (name === 'paid') showPaidPanel(0);
     }
 
     function renderMemory() {
@@ -315,6 +317,10 @@ const posterData = {
       else go('poster');
     });
     gameRoot.querySelectorAll<HTMLElement>('[data-go]').forEach((control) => control.addEventListener('click', () => go(control.dataset.go || 'score')));
+    gameRoot.querySelectorAll<HTMLElement>('[data-paid-next]').forEach((control) => control.addEventListener('click', () => {
+      if (paidPanelIndex + 1 < paidPanels.length) showPaidPanel(paidPanelIndex + 1);
+      else go('final');
+    }));
 
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
     setTimeout(() => go('score'), reduceMotion ? 50 : 1750);

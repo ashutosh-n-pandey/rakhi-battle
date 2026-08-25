@@ -12,15 +12,17 @@ invite.searchParams.set('utm_source', 'whatsapp');
 invite.searchParams.set('utm_medium', 'challenge');
 invite.searchParams.set('utm_campaign', 'rakhi2026');
 ---
-<Layout title={`${challenge.creator_name}'s Rakhi Battle is waiting`} description="Your sibling challenge is ready. Share it and watch the answers arrive." noindex>
-  <div class="shell">
-    <section class="hero waiting-hero">
+<Layout title={`${challenge.creator_name}'s Rakhi Battle is waiting`} description="Your sibling challenge is ready. Share it and watch the answers arrive." noindex gameMode>
+  <div class="game-app-shell waiting-game-shell">
+    <nav class="game-hud" aria-label="Game controls">
+      <a class="game-brand" href="/" aria-label="Rakhi Battle home"><span>र</span><b>RAKHI BATTLE</b></a>
+      <div><span class="game-date">28 AUG</span></div>
+    </nav>
+    <div class="waiting-backdrop" aria-hidden="true"><img src="/images/rakhi-celebration.webp" alt="" /></div>
+    <section class="waiting-card game-scene-panel" data-waiting data-id={id} data-url={invite.toString()} data-name={challenge.creator_name}>
+      <div class="waiting-diya" aria-hidden="true">🪔</div>
       <p class="eyebrow">🧵 Challenge safely saved</p>
       <h1>Ab sibling ki <span>baari hai.</span></h1>
-      <p class="hero-copy">Send the private link to the sibling who shares this bachpan with you.</p>
-    </section>
-    <section class="card waiting-card" data-waiting data-id={id} data-url={invite.toString()} data-name={challenge.creator_name}>
-      <div class="waiting-diya" aria-hidden="true">🪔</div>
       <p class="eyebrow">Live answer progress</p>
       <h2 data-wait-title>{challenge.sibling_progress > 0 ? `Your sibling has answered ${challenge.sibling_progress}/8` : 'Invitation abhi khulna baaki hai'}</h2>
       <div class="waiting-progress"><span data-wait-bar style={`width:${challenge.sibling_progress * 12.5}%`}></span></div>
@@ -31,10 +33,7 @@ invite.searchParams.set('utm_campaign', 'rakhi2026');
         <button class="btn btn-gold" data-wait-share>Share</button>
       </div>
       <p class="status" data-wait-status></p>
-    </section>
-    <section class="waiting-extra">
-      <p><strong>Want another battle?</strong> This one stays saved on this device.</p>
-      <a class="btn btn-ghost" href={`/?ref=waiting_replay&parent=${id}#play`}>Challenge another sibling or cousin</a>
+      <a class="waiting-new-link" href={`/?ref=waiting_replay&parent=${id}`}>+ Challenge another sibling</a>
     </section>
   </div>
 </Layout>

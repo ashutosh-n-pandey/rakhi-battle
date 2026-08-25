@@ -16,7 +16,7 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
   </div>
   <div class="progress hidden" data-progress><span></span></div>
 
-  <div class="card name-screen" data-name-screen>
+  <div class="name-screen game-scene-panel" data-name-screen>
     <p class="eyebrow">{role === 'creator' ? 'Shubh aarambh • open the memory box' : `${creatorName} remembers your childhood differently`}</p>
     <h2>{role === 'creator' ? 'Ghar mein tumhe kya bulaate hain?' : 'Tumhari kahaani kya kehti hai?'}</h2>
     <p class="muted">Only a nickname. No phone number, email or signup.</p>
@@ -27,7 +27,7 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
           <legend>{role === 'creator' ? 'Put us in the Rakhi Hall of Fame?' : `Join ${creatorName} in the Hall of Fame?`}</legend>
           <p>Only nicknames, score and battle code become public. Answers stay private. Both siblings must say yes.</p>
           <div>
-            <button type="button" class="hall-option hall-option-yes" data-hall-value="yes" aria-pressed="false">🏵️ Yes, add us</button>
+            <button type="button" class="hall-option hall-option-yes selected" data-hall-value="yes" aria-pressed="true">🏵️ Yes, add us</button>
             <button type="button" class="hall-option" data-hall-value="no" aria-pressed="false">🔒 Keep private</button>
           </div>
         </fieldset>
@@ -38,14 +38,17 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
     </form>
   </div>
 
-  <div class="card game-opening hidden" data-opening-screen aria-live="polite">
-    <div class="opening-names"><strong data-opening-player></strong><span>×</span><strong>{role === 'sibling' ? creatorName : 'YOUR SIBLING'}</strong></div>
-    <div class="animated-rakhi" aria-hidden="true"><i></i><span>र</span><i></i></div>
-    <p class="eyebrow">Memory box opening…</p>
-    <h2>Ek hi bachpan.<br /><span>Do alag kahaaniyan.</span></h2>
+  <div class="game-opening hidden" data-opening-screen aria-live="polite">
+    <div class="opening-cinema" aria-hidden="true"><img src="/images/rakhi-celebration.webp" alt="" /><span></span></div>
+    <div class="opening-story">
+      <div class="opening-names"><strong data-opening-player></strong><span>×</span><strong>{role === 'sibling' ? creatorName : 'YOUR SIBLING'}</strong></div>
+      <div class="animated-rakhi" aria-hidden="true"><i></i><span>र</span><i></i></div>
+      <p class="eyebrow">Memory box opening…</p>
+      <h2>Ek hi bachpan.<br /><span>Do alag kahaaniyan.</span></h2>
+    </div>
   </div>
 
-  <div class="card question-screen hidden" data-question-screen aria-live="polite">
+  <div class="question-screen game-scene-panel hidden" data-question-screen aria-live="polite">
     <div class="question-emoji" data-emoji></div>
     <h2 class="question-title" data-question></h2>
     <div class="options" data-options></div>
@@ -78,8 +81,9 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
     const answers: Answers = {};
     const draftKey = `rb_quiz_${role}_${challengeId || 'new'}`;
     let playerName = '';
-    let leaderboardOptIn = false;
-    let leaderboardChoiceMade = root.querySelectorAll('[data-hall-value]').length === 0;
+    const hasHallChoice = root.querySelectorAll('[data-hall-value]').length > 0;
+    let leaderboardOptIn = hasHallChoice;
+    let leaderboardChoiceMade = true;
     let index = 0;
     let busy = false;
 
@@ -114,15 +118,26 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
       questionScreen.classList.remove('question-enter');
       void questionScreen.offsetWidth;
       questionScreen.classList.add('question-enter');
-      question.options.forEach((option) => {
+      question.options.forEach((option, optionIndex) => {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'option';
-        button.textContent = option[role];
+        button.style.setProperty('--option-order', String(optionIndex));
+        const badge = document.createElement('span');
+        badge.className = 'option-key';
+        badge.textContent = String.fromCharCode(65 + optionIndex);
+        const label = document.createElement('b');
+        label.textContent = option[role];
+        const arrow = document.createElement('i');
+        arrow.textContent = '→';
+        button.appendChild(badge);
+        button.appendChild(label);
+        button.appendChild(arrow);
         button.addEventListener('click', () => {
           if (busy) return;
           busy = true;
           button.classList.add('selected');
+          navigator.vibrate?.(18);
           answers[question.key] = option.id;
           saveDraft(index + 1);
           saveSiblingProgress(index + 1);
@@ -134,7 +149,7 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
             } else {
               await finish();
             }
-          }, 280);
+          }, 420);
         });
         options.appendChild(button);
       });
@@ -149,7 +164,6 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
         progress.classList.remove('hidden');
         progressMeta.classList.remove('hidden');
         showQuestion();
-        requestAnimationFrame(() => root.scrollIntoView({ behavior: 'smooth', block: 'start' }));
       };
       if (!withOpening || matchMedia('(prefers-reduced-motion: reduce)').matches) {
         revealQuestions();
@@ -157,7 +171,7 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
       }
       openingScreen.querySelector<HTMLElement>('[data-opening-player]')!.textContent = playerName.toUpperCase();
       openingScreen.classList.remove('hidden');
-      setTimeout(revealQuestions, 1600);
+      setTimeout(revealQuestions, 2100);
     }
 
     root.querySelectorAll<HTMLButtonElement>('[data-hall-value]').forEach((button) => {
@@ -215,7 +229,7 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
       if (!playerName) return;
       if (!leaderboardChoiceMade) {
         error.textContent = 'Choose Hall of Fame or Keep private to continue.';
-        root.querySelector<HTMLElement>('[data-hall-choice]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        root.querySelector<HTMLButtonElement>('[data-hall-value]')?.focus({ preventScroll: true });
         return;
       }
       saveDraft(0);

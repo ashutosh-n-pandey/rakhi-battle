@@ -2,58 +2,36 @@
 import Layout from '../layouts/Layout.astro';
 import QuizGame from '../components/QuizGame.astro';
 ---
-<Layout>
-  <div class="shell wide-shell">
-    <section class="festival-strip" aria-label="Raksha Bandhan celebration">
-      <span>शुभ रक्षाबंधन</span><i>✦</i><span>28 August 2026</span><i>✦</i><span>Ek dhaaga • poora bachpan</span>
-    </section>
+<Layout gameMode>
+  <div class="game-app-shell" data-game-app>
+    <nav class="game-hud" aria-label="Game controls">
+      <a class="game-brand" href="/" aria-label="Rakhi Battle home"><span>र</span><b>RAKHI BATTLE</b></a>
+      <div><a href="/leaderboard">🏵️ Hall</a><span class="game-date">28 AUG</span></div>
+    </nav>
 
-    <section class="hero festive-hero">
-      <div class="hero-content">
-        <p class="eyebrow">🪔 Free Rakhi game • 8 memories • no signup</p>
+    <section class="game-lobby" data-game-lobby aria-label="Rakhi Battle opening screen">
+      <div class="lobby-cinema" aria-hidden="true">
+        <img src="/images/rakhi-celebration.webp" width="1536" height="1024" alt="" fetchpriority="high" />
+        <span class="cinema-glow cinema-glow-one"></span><span class="cinema-glow cinema-glow-two"></span>
+        <i class="cinema-spark spark-one">✦</i><i class="cinema-spark spark-two">✦</i><i class="cinema-spark spark-three">✦</i>
+      </div>
+      <div class="lobby-shade"></div>
+      <div class="lobby-content">
+        <p class="game-kicker">🪔 Raksha Bandhan 2026 • 8 memories</p>
         <h1>Har Rakhi ke dhaage mein <span>ek poora bachpan bandha hota hai.</span></h1>
-        <p class="hero-kicker">Ek hi bachpan. Do alag kahaaniyan.</p>
-        <p class="hero-copy">8 sawaalon mein kholo woh yaadein jo sirf tum dono samajhte ho—mummy ki daant, remote ki ladai, chhupayi hui mithai aur har baar ke naye excuses.</p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#play">Apni Rakhi Battle shuru karo</a>
-          <a class="btn btn-ghost" href="/leaderboard">See Hall of Fame</a>
-        </div>
-        <div class="proof-row"><span>⚡ 60–90 seconds</span><span>📲 WhatsApp-ready</span><span>🎨 Free festive poster</span></div>
+        <p class="lobby-line">Ek hi bachpan. Do alag kahaaniyan.</p>
+        <p class="lobby-copy">Mummy ki daant, remote ki ladai aur mithai ki chori—dekho tum dono ko kya yaad hai.</p>
+        <button class="game-cta" type="button" data-enter-game><span>Apni Rakhi Battle shuru karo</span><b>PLAY →</b></button>
+        <div class="game-proof"><span>⚡ 60 sec</span><span>🎨 Free poster</span><span>🔒 No signup</span></div>
       </div>
-      <figure class="hero-art">
-        <img src="/images/rakhi-celebration.webp" width="1536" height="1024" alt="A sister tying a rakhi on her brother during a joyful Raksha Bandhan celebration" fetchpriority="high" />
-        <figcaption><span>✨</span> One thread. Eight memories. Unlimited teasing.</figcaption>
-      </figure>
+
+      <section class="game-resume hidden" data-recent-battles>
+        <div><p class="eyebrow">🧵 Recent battle</p><div class="recent-list" data-recent-list aria-live="polite"></div></div>
+      </section>
     </section>
 
-    <section class="recent-battles hidden" data-recent-battles>
-      <div class="recent-heading">
-        <div><p class="eyebrow">🧵 Your recent Rakhi battles</p><h2>Pick up where you left off.</h2></div>
-        <a class="btn btn-gold" href="#play">+ Start new</a>
-      </div>
-      <p class="recent-note">Saved only in this browser. No account or login.</p>
-      <div class="recent-list" data-recent-list aria-live="polite"></div>
-    </section>
-
-    <section id="how" class="how festival-how">
-      <p class="eyebrow">The Rakhi ritual, remixed</p>
-      <h2>From tilak to childhood throwback.</h2>
-      <p class="section-copy">No app download and no account. Just nicknames, a private challenge link and the two versions of your shared childhood.</p>
-      <div class="steps">
-        <article class="step"><span class="step-icon">🪔</span><b>01 — Apni kahaani</b><span>Answer 8 playful questions from your shared bachpan.</span></article>
-        <article class="step"><span class="step-icon">💌</span><b>02 — Sibling ki kahaani</b><span>Send one private WhatsApp challenge; no signup needed.</span></article>
-        <article class="step"><span class="step-icon">🏆</span><b>03 — Dono ka verdict</b><span>Reveal the score, festive poster and Family Court.</span></article>
-      </div>
-    </section>
-
-    <section class="hall-invite">
-      <div><p class="eyebrow">🏵️ New: Rakhi Hall of Fame</p><h2>Same names. Still unique.</h2></div>
-      <p>Every battle gets a private random identity and a short public code. A result reaches the leaderboard only when <strong>both siblings</strong> say yes.</p>
-      <a class="text-link" href="/leaderboard">Visit the Hall of Fame →</a>
-    </section>
-
-    <section id="play" class="how play-section">
-      <div class="play-heading"><p class="eyebrow">Your turn, ji</p><h2>Memory box kholo.</h2><p>Nickname ready? Mithai 60 seconds wait kar sakti hai.</p></div>
+    <section class="game-play-scene hidden" data-game-play>
+      <button class="game-back" type="button" data-exit-game aria-label="Back to opening">←</button>
       <QuizGame role="creator" />
     </section>
   </div>
@@ -62,6 +40,25 @@ import QuizGame from '../components/QuizGame.astro';
   import { forgetBattle, readRecentBattles, type RecentBattle } from '../lib/recent';
 
   window.rakhiTrack('landing_view');
+
+  const app = document.querySelector<HTMLElement>('[data-game-app]');
+  const lobby = document.querySelector<HTMLElement>('[data-game-lobby]');
+  const play = document.querySelector<HTMLElement>('[data-game-play]');
+  document.querySelector('[data-enter-game]')?.addEventListener('click', () => {
+    lobby?.classList.add('lobby-exit');
+    setTimeout(() => {
+      lobby?.classList.add('hidden');
+      play?.classList.remove('hidden');
+      app?.classList.add('is-playing');
+      document.querySelector<HTMLInputElement>('[data-name]')?.focus({ preventScroll: true });
+    }, 430);
+  });
+  document.querySelector('[data-exit-game]')?.addEventListener('click', () => {
+    if (document.querySelector('[data-quiz]')?.classList.contains('quiz-active')) return;
+    play?.classList.add('hidden');
+    lobby?.classList.remove('hidden', 'lobby-exit');
+    app?.classList.remove('is-playing');
+  });
 
   const recentSection = document.querySelector<HTMLElement>('[data-recent-battles]');
   const recentList = document.querySelector<HTMLElement>('[data-recent-list]');
@@ -161,7 +158,7 @@ import QuizGame from '../components/QuizGame.astro';
     recentList?.appendChild(row);
   }
 
-  const recent = readRecentBattles();
+  const recent = readRecentBattles().slice(0, 1);
   if (recent.length && recentSection && recentList) {
     Promise.all(recent.map(loadStatus)).then((rows) => {
       rows.filter((row): row is NonNullable<typeof row> => Boolean(row)).forEach(({ item, status }) => renderRow(item, status));

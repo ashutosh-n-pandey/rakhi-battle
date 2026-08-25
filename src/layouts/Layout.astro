@@ -6,6 +6,7 @@ interface Props {
   description?: string;
   image?: string;
   noindex?: boolean;
+  gameMode?: boolean;
 }
 
 const {
@@ -13,6 +14,7 @@ const {
   description = 'Open eight shared memories, compare two childhood stories and make a festive Rakhi poster—free, private and without signup.',
   image = '/images/rakhi-share.webp',
   noindex = false,
+  gameMode = false,
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin);
 const imageUrl = new URL(image, Astro.site ?? Astro.url.origin);
@@ -36,7 +38,7 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin);
     <meta name="twitter:card" content="summary_large_image" />
     <title>{title}</title>
   </head>
-  <body>
+  <body class:list={{ 'game-mode': gameMode }}>
     <header class="site-header">
       <a class="brand" href="/" aria-label="Rakhi Battle home">
         <span class="brand-mark" aria-hidden="true">र</span>

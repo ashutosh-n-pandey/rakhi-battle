@@ -10,18 +10,21 @@ if (challenge.status === 'complete') return Astro.redirect(`/result/${id}`);
 const title = `${challenge.creator_name} challenged you — Rakhi Battle 2026`;
 const description = `${challenge.creator_name} remembers your childhood differently. Open the same eight memories and compare your Rakhi stories.`;
 ---
-<Layout title={title} description={description} noindex>
-  <div class="shell">
-    <section class="hero" style="padding-top: 24px">
-      <p class="eyebrow">🪔 A Rakhi memory has arrived</p>
-      <h1><span>{challenge.creator_name}</span> remembers your bachpan differently.</h1>
-      <p class="hero-copy">8 sawaal. Do kahaaniyan. One festive sibling score.</p>
+<Layout title={title} description={description} noindex gameMode>
+  <div class="game-app-shell challenge-game-shell">
+    <nav class="game-hud" aria-label="Game controls">
+      <a class="game-brand" href="/" aria-label="Rakhi Battle home"><span>र</span><b>RAKHI BATTLE</b></a>
+      <div><span class="game-date">28 AUG</span></div>
+    </nav>
+    <div class="challenge-backdrop" aria-hidden="true"><img src="/images/rakhi-celebration.webp" alt="" /></div>
+    <section class="game-play-scene challenge-play-scene">
+      <div class="challenge-kicker"><span>🪔 A Rakhi memory has arrived</span><b>{challenge.creator_name} challenged you</b></div>
+      <QuizGame
+        role="sibling"
+        challengeId={id}
+        creatorName={challenge.creator_name}
+        leaderboardCreatorOptIn={challenge.leaderboard_creator_opt_in === 1}
+      />
     </section>
-    <QuizGame
-      role="sibling"
-      challengeId={id}
-      creatorName={challenge.creator_name}
-      leaderboardCreatorOptIn={challenge.leaderboard_creator_opt_in === 1}
-    />
   </div>
 </Layout>
