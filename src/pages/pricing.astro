@@ -3,18 +3,20 @@ import Layout from '../layouts/Layout.astro';
 import { env } from 'cloudflare:workers';
 const paymentsEnabled = String(env.PAYMENTS_ENABLED) === 'true';
 ---
-<Layout title="Pricing — Rakhi Battle 2026" description="Play free, reveal every exact answer for ₹49, or make the complete result a ₹99 Rakhi Gift Pack.">
+<Layout title="Pricing — Rakhi Battle 2026" description="Play free, reveal every exact answer for ₹49, or make the complete result a ₹99 Digital Rakhi Gift Pack.">
   <article class="shell legal pricing-page">
     <p class="eyebrow">Clear, one-time pricing</p>
     <h1>Play free. Pay only to open the private story.</h1>
-    <p class="legal-lead">No subscription, no account and no charge to finish the eight-question battle.</p>
+    <p class="legal-lead">No subscription, no account and no charge to finish the eight-question battle. Paid products are fixed-price digital-content unlocks, not entry fees, stakes or wagers.</p>
     <div class="pricing-grid">
       <section class="price-card"><span>FREE</span><h2>₹0</h2><ul><li>Complete eight sibling questions</li><li>Memory-sync score and relationship type</li><li>Two MATCH/OBJECTION teasers</li><li>Simple shareable result card</li><li>Rakhi Chain and optional Hall of Fame</li></ul><a class="btn btn-primary btn-block" href="/">Start free</a></section>
       <section class="price-card"><span>EXACT ANSWER REVEAL</span><h2>₹49</h2><ul><li>Everything in Free</li><li>Both exact answers for all eight questions</li><li>Warmth, conflict, rivalry and balance profile</li><li>Playful private verdict</li></ul></section>
-      <section class="price-card featured-price"><span>RAKHI GIFT PACK</span><h2>₹99</h2><ul><li>Everything in Exact Answer Reveal</li><li>Premium festive Story poster</li><li>Downloadable sibling certificate</li><li>One purchase opens it for both siblings</li><li>Upgrade from Reveal for ₹50</li></ul></section>
+      <section class="price-card featured-price"><span>DIGITAL RAKHI GIFT PACK</span><h2>₹99</h2><ul><li>Everything in Exact Answer Reveal</li><li>Premium festive Story poster</li><li>Downloadable sibling certificate</li><li>Digital only • no physical gift is shipped</li><li>One purchase opens it for both siblings</li><li>Upgrade from Reveal for ₹50</li></ul></section>
     </div>
     <div class="notice"><b>Checkout status:</b> {paymentsEnabled ? 'Secure one-time checkout is available from a completed battle result.' : 'Payments are being activated. The free game and result card continue to work.'}</div>
     <h2>One battle, both siblings</h2>
-    <p>An upgrade belongs to the battle, not one person. After verified payment, both siblings can open the same private result link and use the unlocked keepsakes.</p>
+    <p>An upgrade belongs to the battle, not one person. After verified payment, both siblings can open the same private result link and use the unlocked digital keepsakes.</p>
+    <h2>Under 18?</h2>
+    <p>Any paid purchase by or for a person under 18 must be made or authorised by a parent or legal guardian.</p>
   </article>
 </Layout>
