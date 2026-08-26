@@ -6,7 +6,7 @@ Updated: 26 August 2026, UTC
 
 Rakhi Battle is live on the umbrella brand **BondBop** at `https://bondbop.com`. The apex domain resolves correctly through Cloudflare, the user reports the live site and Razorpay-facing policy pages are opening, and `support@bondbop.com` Email Routing is working to the chosen Gmail inbox. Razorpay onboarding has been submitted for review under the genuine India operator **Divya Pandey**, classified as **Gaming → Game developer or publisher**. Payments remain intentionally disabled until merchant approval, live credentials and a controlled real-payment test pass.
 
-The BondBop/Razorpay-readiness patch has been manually deployed successfully. A newer lobby patch is now on `main` but still needs a fresh manual release: it adds one **Info & Policies** link on the opening game lobby, a `/info` merchant/policy hub, and a compact live countdown to Raksha Bandhan on **28 August 2026**. The link and countdown live only in the opening lobby and disappear once PLAY starts, preserving the fixed-screen game experience.
+The latest lobby patch on `main` adds one **Info & Policies** link, a `/info` merchant/policy hub, a compact live countdown to Raksha Bandhan on **28 August 2026**, and a browser-resilient PLAY path. After the user reported that PLAY worked on desktop but was dead in DuckDuckGo Browser on a phone, the CTA was changed from a JavaScript-only button to a real `/play` link enhanced by JavaScript. Normal browsers keep the animated in-place transition; if lobby JavaScript is blocked or fails to parse, native navigation still opens the game through `/play`. Numeric separators were also removed from the countdown script for broader WebView compatibility. This newest compatibility patch still needs a fresh manual release and mobile verification.
 
 ## Verified repository / deployment baseline
 
@@ -37,6 +37,8 @@ Always reverify external state at the start of a new session.
 - Truthful database-derived social proof; zero values hidden.
 - Opening-lobby **Info & Policies** path to `/info`; no legal/navigation clutter during the active eight-question game.
 - Compact countdown to 28 August 2026, 00:00 IST; it becomes a Rakhi Day live message on 28 August and a non-countdown Rakhi message afterward.
+- PLAY is progressive: a real `/play` URL is the no-JavaScript/failure fallback, while working JavaScript intercepts it to preserve the cinematic in-place transition.
+- `/play` is noindex and opens the creator game directly inside the same fixed-screen game shell.
 
 ### Result and revenue funnel
 
@@ -66,8 +68,9 @@ Always reverify external state at the start of a new session.
 
 | Priority | Item | State / evidence | Completion condition |
 |---|---|---|---|
-| P0 | Deploy latest lobby/info/countdown patch | Patch is on `main` but not yet manually released | Pull latest `main`, run `npm run release`, confirm successful Wrangler deployment |
-| P0 | Live-version verification | Current BondBop deployment works; newest lobby/info/countdown patch still needs a quick browser check | Open `bondbop.com`, verify countdown + Info link, then complete creator → sibling → result |
+| P0 | Deploy latest lobby/compatibility patch | Info/countdown plus resilient `/play` fallback are on `main` but not yet manually released | Pull latest `main`, run `npm run release`, confirm successful Wrangler deployment |
+| P0 | Mobile PLAY verification | Desktop PLAY worked; DuckDuckGo Browser on phone failed before the fallback patch | After deploy, verify PLAY in DuckDuckGo Browser plus a mainstream mobile browser; both must enter the game |
+| P0 | Live-version verification | Current BondBop deployment works; newest compatibility patch still needs a quick browser check | Verify lobby, `/info`, PLAY, then complete creator → sibling → result |
 | P0 | Razorpay approval | Onboarding submitted for review under Divya Pandey | Merchant review approved and live API credentials become available |
 | P0 | Live payments | `PAYMENTS_ENABLED=false`; live Razorpay keys absent | Store approved live credentials in Cloudflare, run real ₹49 success/reload/refund test, then enable payments deliberately |
 | P1 | Automatic deployment | Manual deployment works; GitHub Actions Cloudflare secrets remain empty | Add authorized Worker/D1 token and account ID and get one successful Actions deployment |
@@ -77,13 +80,13 @@ Always reverify external state at the start of a new session.
 
 ## Current best next task
 
-Release and visually verify the lobby discovery/urgency patch while Razorpay review continues:
+Release and verify the resilient PLAY patch while Razorpay review continues:
 
 1. In the local Rakhi Battle checkout run `git pull` and then `npm run release`.
-2. Open `https://bondbop.com` on desktop and phone/incognito.
-3. Confirm the compact Rakhi countdown is visible and updates once per second.
-4. Confirm **Info & Policies** opens `/info` and that Pricing, Shipping, Cancellation & Refund, Support, Privacy and Terms are reachable.
-5. Tap PLAY and verify the Info link/countdown disappear with the lobby and the eight-question game remains full-screen with no unintended scrolling.
+2. Open `https://bondbop.com` in DuckDuckGo Browser on the same phone that previously failed.
+3. Tap PLAY. If the enhanced transition is unavailable, the browser must still navigate to `/play` and show the creator game.
+4. Repeat in Chrome/Safari/Firefox mobile and confirm the normal animated transition still works.
+5. Confirm **Info & Policies** opens `/info` and the Rakhi countdown remains visible only on the lobby.
 6. Keep `PAYMENTS_ENABLED=false` until Razorpay approval and the controlled payment test.
 
 ## Owner / payment setup
@@ -111,4 +114,5 @@ Release and visually verify the lobby discovery/urgency patch while Razorpay rev
 - Astro check/build passed with zero errors and warnings in that release.
 - Remote D1 had no pending migrations.
 - Wrangler successfully deployed the BondBop/Razorpay-readiness patch after the transient 26 August D1 authorization error was resolved.
-- The latest lobby/info/countdown changes are on `main` and require a fresh local `npm run release` plus quick visual QA.
+- Desktop PLAY worked on the deployed lobby; DuckDuckGo Browser on phone did not react to the JavaScript-only CTA, which triggered the progressive `/play` fallback change.
+- The latest fallback changes are on `main` and require a fresh local `npm run release` plus mobile verification.
