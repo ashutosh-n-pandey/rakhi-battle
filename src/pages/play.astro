@@ -1,0 +1,17 @@
+---
+import Layout from '../layouts/Layout.astro';
+import QuizGame from '../components/QuizGame.astro';
+---
+<Layout gameMode noindex title="Play Rakhi Battle 2026">
+  <div class="game-app-shell is-playing">
+    <nav class="game-hud" aria-label="Game controls">
+      <a class="game-brand" href="/" aria-label="Rakhi Battle home"><span>र</span><b>RAKHI BATTLE</b></a>
+      <div><a href="/leaderboard">🏵️ Hall</a><span class="game-date">28 AUG</span></div>
+    </nav>
+
+    <section class="game-play-scene">
+      <a class="game-back play-route-back" href="/" aria-label="Back to opening">←</a>
+      <QuizGame role="creator" />
+    </section>
+  </div>
+</Layout>
