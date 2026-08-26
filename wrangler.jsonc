@@ -11,7 +11,7 @@
     }
   ],
   "vars": {
-    "APP_ORIGIN": "https://rakhi-battle.riselikealion7.workers.dev",
+    "APP_ORIGIN": "https://bondbop.com",
     "PAYMENTS_ENABLED": "false",
     "DATA_RETENTION_DAYS": "45"
   },
