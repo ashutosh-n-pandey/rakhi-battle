@@ -20,14 +20,15 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
     <p class="eyebrow">{role === 'creator' ? 'Shubh aarambh • open the memory box' : `${creatorName} remembers your childhood differently`}</p>
     <h2>{role === 'creator' ? 'Ghar mein tumhe kya bulaate hain?' : 'Tumhari kahaani kya kehti hai?'}</h2>
     <p class="muted">Only a nickname. No phone number, email or signup.</p>
+    <p class="quiz-privacy-note">Your answers aren't public. Your paired sibling can see them if this battle's Exact Answer Reveal is unlocked. Under 18? Play with a parent or guardian's permission.</p>
     <form data-name-form>
       <input data-name maxlength="24" autocomplete="nickname" placeholder={role === 'creator' ? 'Your nickname' : 'Your nickname'} required />
       {(role === 'creator' || leaderboardCreatorOptIn) && (
-        <fieldset class="hall-choice" data-hall-choice>
+        <fieldset class="hall-choice hall-choice-attention" data-hall-choice>
           <legend>{role === 'creator' ? 'Put us in the Rakhi Hall of Fame?' : `Join ${creatorName} in the Hall of Fame?`}</legend>
-          <p>Only nicknames, score and battle code become public. Answers stay private. Both siblings must say yes.</p>
+          <p>Optional. Only nicknames, score and battle code become public. Answers stay private. Both siblings must separately choose Yes.</p>
           <div>
-            <button type="button" class="hall-option hall-option-yes selected" data-hall-value="yes" aria-pressed="true">🏵️ Yes, add us</button>
+            <button type="button" class="hall-option" data-hall-value="yes" aria-pressed="false">🏵️ Yes, add us</button>
             <button type="button" class="hall-option" data-hall-value="no" aria-pressed="false">🔒 Keep private</button>
           </div>
         </fieldset>
@@ -57,6 +58,25 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
   <p class="status error" data-error aria-live="assertive"></p>
 </section>
 
+<style>
+  .quiz-privacy-note {
+    margin: -4px 0 10px;
+    color: var(--muted);
+    font-size: .69rem;
+    line-height: 1.38;
+  }
+  .hall-choice-attention {
+    animation: hall-choice-attention 1.05s ease .55s 2;
+  }
+  @keyframes hall-choice-attention {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+    50% { box-shadow: 0 0 0 4px rgba(245, 158, 11, .18), 0 0 22px rgba(245, 158, 11, .12); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hall-choice-attention { animation: none; }
+  }
+</style>
+
 <script>
   import { questions, type Answers, type Role } from '../lib/game';
   import { rememberBattle } from '../lib/recent';
@@ -82,14 +102,14 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
     const draftKey = `rb_quiz_v2_${role}_${challengeId || 'new'}`;
     let playerName = '';
     const hasHallChoice = root.querySelectorAll('[data-hall-value]').length > 0;
-    let leaderboardOptIn = hasHallChoice;
-    let leaderboardChoiceMade = true;
+    let leaderboardOptIn = false;
+    let leaderboardChoiceMade = !hasHallChoice;
     let index = 0;
     let busy = false;
 
     function saveDraft(nextIndex = index) {
       try {
-        localStorage.setItem(draftKey, JSON.stringify({ name: playerName, answers, index: nextIndex, leaderboardOptIn }));
+        localStorage.setItem(draftKey, JSON.stringify({ name: playerName, answers, index: nextIndex, leaderboardOptIn, leaderboardChoiceMade }));
       } catch {
         // The game remains usable when storage is restricted.
       }
@@ -178,6 +198,7 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
       button.addEventListener('click', () => {
         leaderboardChoiceMade = true;
         leaderboardOptIn = button.dataset.hallValue === 'yes';
+        root.querySelector<HTMLElement>('[data-hall-choice]')?.classList.remove('hall-choice-attention');
         root.querySelectorAll<HTMLButtonElement>('[data-hall-value]').forEach((option) => {
           const selected = option === button;
           option.classList.toggle('selected', selected);
@@ -229,6 +250,10 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
       if (!playerName) return;
       if (!leaderboardChoiceMade) {
         error.textContent = 'Choose Hall of Fame or Keep private to continue.';
+        const choice = root.querySelector<HTMLElement>('[data-hall-choice]');
+        choice?.classList.remove('hall-choice-attention');
+        void choice?.offsetWidth;
+        choice?.classList.add('hall-choice-attention');
         root.querySelector<HTMLButtonElement>('[data-hall-value]')?.focus({ preventScroll: true });
         return;
       }
@@ -247,19 +272,26 @@ const { role, challengeId = '', creatorName = '', leaderboardCreatorOptIn = fals
         answers?: Record<string, unknown>;
         index?: number;
         leaderboardOptIn?: boolean;
+        leaderboardChoiceMade?: boolean;
       } | null;
       if (draft?.name && typeof draft.name === 'string') {
         playerName = draft.name.slice(0, 24);
         nameInput.value = playerName;
-        leaderboardOptIn = draft.leaderboardOptIn === true;
-        leaderboardChoiceMade = true;
+        if (hasHallChoice && draft.leaderboardChoiceMade === true) {
+          leaderboardOptIn = draft.leaderboardOptIn === true;
+          leaderboardChoiceMade = true;
+          const chosen = root.querySelector<HTMLButtonElement>(`[data-hall-value="${leaderboardOptIn ? 'yes' : 'no'}"]`);
+          chosen?.classList.add('selected');
+          chosen?.setAttribute('aria-pressed', 'true');
+          root.querySelector<HTMLElement>('[data-hall-choice]')?.classList.remove('hall-choice-attention');
+        }
         for (const question of questions) {
           const value = draft.answers?.[question.key];
           if (['creator', 'sibling', 'both', 'denied'].includes(String(value))) answers[question.key] = value as Answers[string];
         }
         index = Math.max(0, Math.min(Number(draft.index || 0), questions.length));
-        if (index >= questions.length) void finish();
-        else beginQuestions(false);
+        if (index >= questions.length && leaderboardChoiceMade) void finish();
+        else if (index > 0 && leaderboardChoiceMade) beginQuestions(false);
       }
     } catch {
       clearDraft();
