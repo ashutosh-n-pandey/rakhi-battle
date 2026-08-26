@@ -30,6 +30,7 @@ This file contains accepted decisions. Newer dated entries supersede conflicting
 | 26 Aug | The fixed-screen lobby intentionally hides the conventional site header/footer, but merchant information still needs a clear public path without cluttering gameplay. | Show one subtle **Info & Policies** link on the opening lobby only, leading to `/info`; keep it absent during the eight-question game. |
 | 26 Aug | Raksha Bandhan is two days away and time pressure is a useful truthful launch cue. | Show a compact live countdown to **28 Aug 2026, 00:00 IST** on the lobby; on Rakhi Day switch it to “IT'S ON • PLAY NOW,” then keep a non-countdown Rakhi message afterward. |
 | 26 Aug | A JavaScript-only PLAY button worked on desktop but failed in DuckDuckGo Browser on a phone. | Make PLAY progressive: use a real `/play` anchor as the native fallback and let working JavaScript intercept it for the cinematic transition. Keep `/play` noindex and remove newer numeric-separator syntax from the countdown script for wider WebView compatibility. |
+| 26 Aug | A creator may have several brothers/sisters; forcing the same person to answer all eight questions again for every sibling kills the natural Rakhi family loop. | Let the creator reuse one saved answer set to generate separate private pair links for additional siblings. Reuse is authorised only from the creator session, capped at 12 active links per family root, and each pair keeps its own result and payment unlock. |
 
 ## Frozen current product
 
@@ -39,6 +40,8 @@ This file contains accepted decisions. Newer dated entries supersede conflicting
 - Creator nickname plus eight canonical pair questions.
 - Cryptographically random private challenge link.
 - First valid sibling response completes the pair.
+- A creator can reuse the same eight saved answers to create separate private links for additional siblings without replaying the quiz.
+- Each sibling pair remains isolated for answers, result and payment unlock; the family links stay grouped under one root chain.
 - Fixed-screen animated game runtime.
 - Lobby-only merchant/policy path through `/info`; legal navigation stays out of active gameplay.
 - Live Rakhi countdown on the opening lobby through 28 August 2026.
