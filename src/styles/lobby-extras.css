@@ -1,3 +1,18 @@
+.game-cta {
+  text-decoration: none;
+  touch-action: manipulation;
+}
+
+.game-cta::after {
+  pointer-events: none;
+}
+
+.play-route-back {
+  text-decoration: none;
+  display: grid;
+  place-items: center;
+}
+
 .rakhi-countdown {
   margin: 7px 0 12px;
   padding: 7px 10px;
