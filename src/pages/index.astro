@@ -55,7 +55,7 @@ const topHallScore = Number((hallStats.results[0] as { top_score?: number } | un
         <h1>Har Rakhi ke dhaage mein <span>ek poora bachpan bandha hota hai.</span></h1>
         <p class="lobby-line">Ek hi bachpan. Do alag kahaaniyan.</p>
         <p class="lobby-copy">Mummy ki daant, remote ki ladai aur mithai ki chori—dekho tum dono ko kya yaad hai.</p>
-        <button class="game-cta" type="button" data-enter-game><span>Apni Rakhi Battle shuru karo</span><b>PLAY →</b></button>
+        <a class="game-cta" href="/play" data-enter-game><span>Apni Rakhi Battle shuru karo</span><b>PLAY →</b></a>
         <div class="game-proof"><span>⚡ 60 sec</span><span>🎨 Free result card</span><span>🔒 No signup</span></div>
         <a class="lobby-info-link" href="/info">ⓘ Info &amp; Policies</a>
         {(completedBattles > 0 || activePlayers > 0 || topHallScore > 0) && <div class="live-game-proof" aria-label="Live Rakhi Battle activity">
@@ -85,7 +85,8 @@ const topHallScore = Number((hallStats.results[0] as { top_score?: number } | un
   const app = document.querySelector<HTMLElement>('[data-game-app]');
   const lobby = document.querySelector<HTMLElement>('[data-game-lobby]');
   const play = document.querySelector<HTMLElement>('[data-game-play]');
-  document.querySelector('[data-enter-game]')?.addEventListener('click', () => {
+  document.querySelector<HTMLAnchorElement>('[data-enter-game]')?.addEventListener('click', (event) => {
+    event.preventDefault();
     lobby?.classList.add('lobby-exit');
     setTimeout(() => {
       lobby?.classList.add('hidden');
@@ -125,10 +126,10 @@ const topHallScore = Number((hallStats.results[0] as { top_score?: number } | un
       return;
     }
     const remaining = rakhiStart - now;
-    const days = Math.floor(remaining / 86_400_000);
-    const hours = Math.floor((remaining % 86_400_000) / 3_600_000);
-    const minutes = Math.floor((remaining % 3_600_000) / 60_000);
-    const seconds = Math.floor((remaining % 60_000) / 1_000);
+    const days = Math.floor(remaining / 86400000);
+    const hours = Math.floor((remaining % 86400000) / 3600000);
+    const minutes = Math.floor((remaining % 3600000) / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
     if (daysNode) daysNode.textContent = String(days).padStart(2, '0');
     if (hoursNode) hoursNode.textContent = String(hours).padStart(2, '0');
     if (minutesNode) minutesNode.textContent = String(minutes).padStart(2, '0');
@@ -136,7 +137,7 @@ const topHallScore = Number((hallStats.results[0] as { top_score?: number } | un
   }
 
   updateRakhiCountdown();
-  countdownTimer = window.setInterval(updateRakhiCountdown, 1_000);
+  countdownTimer = window.setInterval(updateRakhiCountdown, 1000);
 
   const recentSection = document.querySelector<HTMLElement>('[data-recent-battles]');
   const recentList = document.querySelector<HTMLElement>('[data-recent-list]');
