@@ -80,6 +80,22 @@ const imageUrl = new URL(image, Astro.site ?? Astro.url.origin);
           if (navigator.sendBeacon) navigator.sendBeacon('/api/events', new Blob([body], { type: 'application/json' }));
           else fetch('/api/events', { method: 'POST', headers: { 'content-type': 'application/json' }, body, keepalive: true }).catch(() => {});
         };
+
+        document.querySelectorAll('[data-buy="full"]').forEach((control) => {
+          const text = control.textContent || '';
+          if (text.includes('Rakhi Gift Pack')) control.textContent = text.replace('Rakhi Gift Pack', 'Digital Rakhi Gift Pack');
+          else if (text.includes('Add Gift Pack')) control.textContent = text.replace('Add Gift Pack', 'Add Digital Gift Pack');
+        });
+
+        document.querySelectorAll('[data-payment-zone]').forEach((zone) => {
+          if (zone.querySelector('[data-minor-purchase-note]')) return;
+          const note = document.createElement('p');
+          note.className = 'checkout-note';
+          note.setAttribute('data-minor-purchase-note', '');
+          note.textContent = 'Under 18? A parent or legal guardian must make or authorise any paid purchase.';
+          const status = zone.querySelector('[data-pay-status]');
+          zone.insertBefore(note, status || null);
+        });
       })();
     </script>
     <script>
