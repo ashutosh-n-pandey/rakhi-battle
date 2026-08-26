@@ -29,6 +29,7 @@ This file contains accepted decisions. Newer dated entries supersede conflicting
 | 26 Aug | Current business activity is first-party casual digital games, not a marketplace or wagering product. | Razorpay category is **Gaming** with sub-category **Game developer or publisher**. Do not represent BondBop as a game marketplace, fantasy-sports service, casino or cash-competition platform. |
 | 26 Aug | The fixed-screen lobby intentionally hides the conventional site header/footer, but merchant information still needs a clear public path without cluttering gameplay. | Show one subtle **Info & Policies** link on the opening lobby only, leading to `/info`; keep it absent during the eight-question game. |
 | 26 Aug | Raksha Bandhan is two days away and time pressure is a useful truthful launch cue. | Show a compact live countdown to **28 Aug 2026, 00:00 IST** on the lobby; on Rakhi Day switch it to “IT'S ON • PLAY NOW,” then keep a non-countdown Rakhi message afterward. |
+| 26 Aug | A JavaScript-only PLAY button worked on desktop but failed in DuckDuckGo Browser on a phone. | Make PLAY progressive: use a real `/play` anchor as the native fallback and let working JavaScript intercept it for the cinematic transition. Keep `/play` noindex and remove newer numeric-separator syntax from the countdown script for wider WebView compatibility. |
 
 ## Frozen current product
 
@@ -41,6 +42,7 @@ This file contains accepted decisions. Newer dated entries supersede conflicting
 - Fixed-screen animated game runtime.
 - Lobby-only merchant/policy path through `/info`; legal navigation stays out of active gameplay.
 - Live Rakhi countdown on the opening lobby through 28 August 2026.
+- PLAY has a real `/play` fallback if lobby JavaScript is unavailable; normal browsers keep the in-place animated transition.
 - Memory Sync plus a research-inspired relationship profile.
 - Free simple share card; ₹49 Exact Answer Reveal; ₹99 Rakhi Gift Pack.
 - One purchase belongs to the battle and unlocks for both.
