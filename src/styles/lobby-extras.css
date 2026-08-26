@@ -1,0 +1,107 @@
+.rakhi-countdown {
+  margin: 7px 0 12px;
+  padding: 7px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  background: rgba(37, 4, 15, .66);
+  border: 1px solid rgba(255, 209, 102, .58);
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.05), 0 8px 28px rgba(0,0,0,.25), 0 0 22px rgba(255, 209, 102, .12);
+  backdrop-filter: blur(12px);
+}
+
+.rakhi-countdown-label {
+  color: var(--gold);
+  font-size: .63rem;
+  font-weight: 950;
+  letter-spacing: .12em;
+  white-space: nowrap;
+}
+
+.rakhi-countdown-digits {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.rakhi-countdown-digits b {
+  min-width: 1.35em;
+  color: #fff;
+  font-size: .94rem;
+  line-height: 1;
+  text-align: center;
+  text-shadow: 0 0 12px rgba(255, 209, 102, .36);
+}
+
+.rakhi-countdown-digits i {
+  margin-right: 1px;
+  color: #f6d7df;
+  font-size: .52rem;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: .04em;
+}
+
+.rakhi-countdown-digits em {
+  color: var(--gold);
+  font-size: .72rem;
+  font-style: normal;
+  font-weight: 950;
+  opacity: .76;
+}
+
+.rakhi-countdown.is-live {
+  border-color: rgba(255, 209, 102, .88);
+  box-shadow: 0 0 0 1px rgba(255,209,102,.10), 0 8px 30px rgba(0,0,0,.28), 0 0 30px rgba(255, 209, 102, .22);
+}
+
+.rakhi-live {
+  color: #fff4bf;
+  font-size: .72rem;
+  font-weight: 950;
+  letter-spacing: .06em;
+}
+
+.lobby-info-link {
+  margin-top: 9px;
+  display: inline-flex;
+  align-items: center;
+  color: rgba(255,255,255,.72);
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+  text-decoration: underline;
+  text-decoration-color: rgba(255,255,255,.32);
+  text-underline-offset: 3px;
+  transition: color .15s ease, text-decoration-color .15s ease;
+}
+
+.lobby-info-link:hover,
+.lobby-info-link:focus-visible {
+  color: #fff;
+  text-decoration-color: var(--gold);
+}
+
+@media (max-width: 480px) {
+  .rakhi-countdown {
+    margin: 5px 0 9px;
+    padding: 6px 8px;
+    gap: 7px;
+  }
+
+  .rakhi-countdown-label { font-size: .56rem; }
+  .rakhi-countdown-digits b { font-size: .82rem; }
+  .rakhi-countdown-digits i { font-size: .46rem; }
+  .rakhi-countdown-digits em { font-size: .62rem; }
+  .rakhi-live { font-size: .62rem; }
+  .lobby-info-link { margin-top: 7px; font-size: .63rem; }
+}
+
+@media (max-height: 700px) {
+  .rakhi-countdown { margin-block: 3px 7px; padding-block: 5px; }
+  .lobby-info-link { margin-top: 5px; }
+}
