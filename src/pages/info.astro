@@ -1,0 +1,68 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="BondBop — Info & Policies" description="BondBop merchant information, pricing, support, shipping, refund, privacy and terms for Rakhi Battle.">
+  <article class="shell legal info-hub">
+    <p class="eyebrow">BondBop • Merchant information</p>
+    <h1>Info &amp; Policies</h1>
+    <p class="legal-lead"><strong>Rakhi Battle</strong> is a digital entertainment game by <strong>BondBop</strong>, operated in India by <strong>Divya Pandey</strong>.</p>
+
+    <section class="card info-summary">
+      <div>
+        <span>Product</span>
+        <strong>Rakhi Battle 2026</strong>
+      </div>
+      <div>
+        <span>Delivery</span>
+        <strong>Digital only • no physical shipping</strong>
+      </div>
+      <div>
+        <span>Support</span>
+        <strong><a href="mailto:support@bondbop.com">support@bondbop.com</a></strong>
+      </div>
+    </section>
+
+    <h2>Purchase information</h2>
+    <div class="info-links">
+      <a class="card" href="/pricing"><b>Pricing</b><span>Free play, ₹49 Exact Answer Reveal and ₹99 Rakhi Gift Pack.</span><i>View →</i></a>
+      <a class="card" href="/shipping"><b>Shipping &amp; Digital Delivery</b><span>How paid digital content is delivered and what to do if it does not appear.</span><i>View →</i></a>
+      <a class="card" href="/refund"><b>Cancellation &amp; Refund</b><span>Rules for digital purchases, duplicate charges and failed delivery.</span><i>View →</i></a>
+    </div>
+
+    <h2>Help &amp; legal</h2>
+    <div class="info-links">
+      <a class="card" href="/contact"><b>Support</b><span>Submit a support case for technical, payment, delivery or privacy help.</span><i>View →</i></a>
+      <a class="card" href="/privacy"><b>Privacy</b><span>What data the game uses, why it is used and how long it is retained.</span><i>View →</i></a>
+      <a class="card" href="/terms"><b>Terms</b><span>Entertainment-use, purchase and acceptable-use terms.</span><i>View →</i></a>
+    </div>
+
+    <div class="info-actions">
+      <a class="btn btn-primary" href="/">← Back to Rakhi Battle</a>
+      <a class="btn btn-ghost" href="mailto:support@bondbop.com">Email support</a>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .info-hub { width: min(100% - 32px, 820px); }
+  .info-hub h1 { font-size: clamp(2.8rem, 8vw, 5rem); }
+  .info-hub h2 { margin-top: 38px; font-size: clamp(1.55rem, 5vw, 2.35rem); }
+  .info-summary { margin-top: 26px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .info-summary div { min-width: 0; }
+  .info-summary span, .info-summary strong { display: block; }
+  .info-summary span { margin-bottom: 6px; color: var(--muted); font-size: .72rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+  .info-summary strong { font-size: .94rem; line-height: 1.45; }
+  .info-summary a { color: var(--wine); }
+  .info-links { margin-top: 15px; display: grid; gap: 12px; }
+  .info-links > a { padding: 20px 22px; display: grid; grid-template-columns: minmax(150px, .7fr) 1fr auto; align-items: center; gap: 18px; color: inherit; text-decoration: none; transition: transform .15s ease, border-color .15s ease; }
+  .info-links > a:hover { transform: translateY(-2px); border-color: rgba(125,21,56,.25); }
+  .info-links b { color: var(--wine-dark); }
+  .info-links span { color: var(--muted); font-size: .9rem; line-height: 1.45; }
+  .info-links i { color: var(--wine); font-style: normal; font-weight: 950; white-space: nowrap; }
+  .info-actions { margin-top: 34px; display: flex; flex-wrap: wrap; gap: 10px; }
+  @media (max-width: 680px) {
+    .info-summary { grid-template-columns: 1fr; gap: 14px; }
+    .info-links > a { grid-template-columns: 1fr auto; gap: 6px 12px; }
+    .info-links span { grid-column: 1 / -1; }
+  }
+</style>
