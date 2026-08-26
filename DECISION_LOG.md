@@ -1,6 +1,6 @@
 # Rakhi Battle 2026 — decision log
 
-Updated: 25 August 2026
+Updated: 26 August 2026
 
 This file contains accepted decisions. Newer dated entries supersede conflicting older plans.
 
@@ -23,9 +23,15 @@ This file contains accepted decisions. Newer dated entries supersede conflicting
 | 25 Aug | Unproven paid acquisition can lose money at low ticket size. | Cap family-money risk at ₹15,000, begin with roughly ₹900–₹1,000 traffic, and release spend only after funnel and viral KPIs justify it. Working gross target is ₹50,000; ₹1 lakh is stretch. |
 | 25 Aug | Display ads can reduce completion and require separate approval/scale. | Defer AdSense/display ads and Google Ads; start with organic/creator seeding and controlled Meta tests after payment reliability. |
 | 25 Aug | GitHub deployment cannot run without Cloudflare credentials. | Add properly authorised GitHub Secrets, deploy latest `main`, and verify live before further promotion or payment activation. |
+| 26 Aug | A Rakhi-only domain would constrain future Mother's Day, Father's Day, Christmas, Valentine, friendship and birthday games. | Use **BondBop** as the umbrella consumer brand and `bondbop.com` as the canonical domain. Rakhi Battle remains the current seasonal product. |
+| 26 Aug | Razorpay onboarding must match the genuine India seller while the user may continue to own/manage technical infrastructure. | Public merchant/operator identity is **Divya Pandey**. Razorpay KYC, settlement bank and legal seller identity must remain hers; GitHub, Cloudflare, domain administration and development may be managed separately. |
+| 26 Aug | Website review benefits from explicit merchant identity and standard policy naming. | Show “Rakhi Battle by BondBop,” identify Divya Pandey as India operator, publish `support@bondbop.com`, and provide Pricing, Terms, Privacy, Shipping, Digital Delivery, Cancellation & Refund and Contact pages. |
+| 26 Aug | Current business activity is first-party casual digital games, not a marketplace or wagering product. | Razorpay category is **Gaming** with sub-category **Game developer or publisher**. Do not represent BondBop as a game marketplace, fantasy-sports service, casino or cash-competition platform. |
 
 ## Frozen current product
 
+- Consumer umbrella brand: **BondBop** (`bondbop.com`).
+- Current seasonal product: **Rakhi Battle 2026**.
 - No login, email, phone or install to play.
 - Creator nickname plus eight canonical pair questions.
 - Cryptographically random private challenge link.
