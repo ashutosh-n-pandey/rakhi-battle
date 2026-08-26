@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import QuizGame from '../components/QuizGame.astro';
 import { db } from '../lib/server';
+import '../styles/lobby-extras.css';
 
 const [battleStats, activeStats, hallStats] = await db().batch([
   db().prepare(`SELECT COUNT(*) AS completed,
@@ -45,11 +46,18 @@ const topHallScore = Number((hallStats.results[0] as { top_score?: number } | un
       <div class="lobby-shade"></div>
       <div class="lobby-content">
         <p class="game-kicker">🪔 Raksha Bandhan 2026 • 8 memories</p>
+        <div class="rakhi-countdown" data-rakhi-countdown role="timer" aria-label="Countdown to Raksha Bandhan 2026">
+          <span class="rakhi-countdown-label" data-rakhi-countdown-label>RAKHI DAY IN</span>
+          <span class="rakhi-countdown-digits" data-rakhi-countdown-digits>
+            <b data-rakhi-days>--</b><i>D</i><em>:</em><b data-rakhi-hours>--</b><i>H</i><em>:</em><b data-rakhi-minutes>--</b><i>M</i><em>:</em><b data-rakhi-seconds>--</b><i>S</i>
+          </span>
+        </div>
         <h1>Har Rakhi ke dhaage mein <span>ek poora bachpan bandha hota hai.</span></h1>
         <p class="lobby-line">Ek hi bachpan. Do alag kahaaniyan.</p>
         <p class="lobby-copy">Mummy ki daant, remote ki ladai aur mithai ki chori—dekho tum dono ko kya yaad hai.</p>
         <button class="game-cta" type="button" data-enter-game><span>Apni Rakhi Battle shuru karo</span><b>PLAY →</b></button>
         <div class="game-proof"><span>⚡ 60 sec</span><span>🎨 Free result card</span><span>🔒 No signup</span></div>
+        <a class="lobby-info-link" href="/info">ⓘ Info &amp; Policies</a>
         {(completedBattles > 0 || activePlayers > 0 || topHallScore > 0) && <div class="live-game-proof" aria-label="Live Rakhi Battle activity">
           {completedBattles > 0 && <span><i></i><b>{completedBattles.toLocaleString('en-IN')}</b> stories compared</span>}
           {activePlayers > 0 && <span><b>{activePlayers}</b> active in 10 min</span>}
@@ -92,6 +100,43 @@ const topHallScore = Number((hallStats.results[0] as { top_score?: number } | un
     lobby?.classList.remove('hidden', 'lobby-exit');
     app?.classList.remove('is-playing');
   });
+
+  const countdown = document.querySelector<HTMLElement>('[data-rakhi-countdown]');
+  const countdownLabel = countdown?.querySelector<HTMLElement>('[data-rakhi-countdown-label]');
+  const countdownDigits = countdown?.querySelector<HTMLElement>('[data-rakhi-countdown-digits]');
+  const daysNode = countdown?.querySelector<HTMLElement>('[data-rakhi-days]');
+  const hoursNode = countdown?.querySelector<HTMLElement>('[data-rakhi-hours]');
+  const minutesNode = countdown?.querySelector<HTMLElement>('[data-rakhi-minutes]');
+  const secondsNode = countdown?.querySelector<HTMLElement>('[data-rakhi-seconds]');
+  const rakhiStart = Date.parse('2026-08-28T00:00:00+05:30');
+  const rakhiEnd = Date.parse('2026-08-29T00:00:00+05:30');
+  let countdownTimer: number | undefined;
+
+  function updateRakhiCountdown() {
+    if (!countdown || !countdownLabel || !countdownDigits) return;
+    const now = Date.now();
+    if (now >= rakhiStart) {
+      if (countdownTimer) window.clearInterval(countdownTimer);
+      countdown.classList.add('is-live');
+      countdownLabel.textContent = now < rakhiEnd ? 'RAKHI DAY' : 'RAKHI 2026';
+      countdownDigits.innerHTML = now < rakhiEnd
+        ? '<strong class="rakhi-live">IT\'S ON • PLAY NOW 🔥</strong>'
+        : '<strong class="rakhi-live">KEEP THE BATTLE GOING ✦</strong>';
+      return;
+    }
+    const remaining = rakhiStart - now;
+    const days = Math.floor(remaining / 86_400_000);
+    const hours = Math.floor((remaining % 86_400_000) / 3_600_000);
+    const minutes = Math.floor((remaining % 3_600_000) / 60_000);
+    const seconds = Math.floor((remaining % 60_000) / 1_000);
+    if (daysNode) daysNode.textContent = String(days).padStart(2, '0');
+    if (hoursNode) hoursNode.textContent = String(hours).padStart(2, '0');
+    if (minutesNode) minutesNode.textContent = String(minutes).padStart(2, '0');
+    if (secondsNode) secondsNode.textContent = String(seconds).padStart(2, '0');
+  }
+
+  updateRakhiCountdown();
+  countdownTimer = window.setInterval(updateRakhiCountdown, 1_000);
 
   const recentSection = document.querySelector<HTMLElement>('[data-recent-battles]');
   const recentList = document.querySelector<HTMLElement>('[data-recent-list]');
