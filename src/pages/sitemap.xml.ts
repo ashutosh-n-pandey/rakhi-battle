@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 
-const pages = ['', 'leaderboard', 'pricing', 'privacy', 'terms', 'delivery', 'shipping', 'refund', 'contact'];
+const pages = ['', 'info', 'leaderboard', 'pricing', 'privacy', 'terms', 'delivery', 'shipping', 'refund', 'contact'];
 
 export const GET: APIRoute = ({ site }) => {
   const base = site ?? new URL('https://bondbop.com');
