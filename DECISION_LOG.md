@@ -16,7 +16,7 @@ This file contains accepted decisions. Newer dated entries supersede conflicting
 | 24 Aug | A decorated scrolling page does not feel like a game. | The entire playable journey must use a fixed one-screen shell with cinematic transitions and no document scrolling. |
 | 25 Aug | Match percentage alone cannot support a psychology claim. | Separate Memory Sync from research-inspired Warmth, Conflict, Rivalry and Balance. Never call the result a diagnosis or validated assessment. |
 | 25 Aug | Research patterns can provide warmer, more meaningful types. | Use Safe-Harbour Siblings, Firecracker Family, Courtroom Companions and Independent Allies, with affectionate descriptions at every score. |
-| 25 Aug | Curiosity is strongest after a useful free result and two concrete teasers. | Free includes type, Memory Sync, two teasers and simple share card. ₹49 Exact Answer Reveal includes all paired answers/profile. ₹99 Rakhi Gift Pack adds premium poster/certificate; upgrade costs ₹50. |
+| 25 Aug | Curiosity is strongest after a useful free result and two concrete teasers. | Free includes type, Memory Sync, two teasers and simple share card. ₹49 Exact Answer Reveal includes all paired answers/profile. ₹99 Digital Rakhi Gift Pack adds premium poster/certificate; upgrade costs ₹50. |
 | 25 Aug | Making one gender pay excludes valid sibling/cousin relationships. | Either participant may pay. One purchase unlocks both. A sibling-gift prompt is optional and gender-neutral. |
 | 25 Aug | Fake social proof damages trust and measurement. | Display only D1-derived completed stories, recent activity, multi-battle family chains and consented Hall score. Hide zero values. |
 | 25 Aug | The fastest defensible India launch needs a genuine local operator. | Wife will genuinely own and run the India individual/sole-proprietor operation; identity, KYC, bank, support, books and tax treatment must match. |
@@ -31,6 +31,8 @@ This file contains accepted decisions. Newer dated entries supersede conflicting
 | 26 Aug | Raksha Bandhan is two days away and time pressure is a useful truthful launch cue. | Show a compact live countdown to **28 Aug 2026, 00:00 IST** on the lobby; on Rakhi Day switch it to “IT'S ON • PLAY NOW,” then keep a non-countdown Rakhi message afterward. |
 | 26 Aug | A JavaScript-only PLAY button worked on desktop but failed in DuckDuckGo Browser on a phone. | Make PLAY progressive: use a real `/play` anchor as the native fallback and let working JavaScript intercept it for the cinematic transition. Keep `/play` noindex and remove newer numeric-separator syntax from the countdown script for wider WebView compatibility. |
 | 26 Aug | A creator may have several brothers/sisters; forcing the same person to answer all eight questions again for every sibling kills the natural Rakhi family loop. | Let the creator reuse one saved answer set to generate separate private pair links for additional siblings. Reuse is authorised only from the creator session, capped at 12 active links per family root, and each pair keeps its own result and payment unlock. |
+| 26 Aug | India compliance audit found the Hall was preselected to Yes, consumer remedies were too narrow, minor-purchase wording was absent, and paid Gift Pack wording could imply a physical product. | Require an explicit unselected Hall choice; attract attention only to the choice container, never privilege Yes; disclose paired-answer visibility before play; add guardian authorisation for paid purchases by minors; preserve statutory consumer remedies; identify Divya Pandey as Grievance Officer with 48-hour acknowledgement / one-month target; use **Digital Rakhi Gift Pack**; state clearly that there is no stake, wager, paid entry for a prize or monetary winnings. |
+| 26 Aug | Indian online-gaming law focuses on stake/wager/reward economics, not playful words such as battle, score or winner. | Keep the product free-to-play with optional fixed-price digital-content unlocks. Never add cash prizes, entry fees for prizes, deposits/withdrawals, redeemable game value, betting, wagering, jackpots or “win cash” marketing. |
 
 ## Frozen current product
 
@@ -46,9 +48,12 @@ This file contains accepted decisions. Newer dated entries supersede conflicting
 - Lobby-only merchant/policy path through `/info`; legal navigation stays out of active gameplay.
 - Live Rakhi countdown on the opening lobby through 28 August 2026.
 - PLAY has a real `/play` fallback if lobby JavaScript is unavailable; normal browsers keep the in-place animated transition.
+- Hall of Fame requires an explicit Yes/No choice; neither option is preselected and only the neutral choice container may draw attention.
+- Quiz answers are not public; the paired sibling may see exact paired answers if that battle's paid reveal is unlocked.
 - Memory Sync plus a research-inspired relationship profile.
-- Free simple share card; ₹49 Exact Answer Reveal; ₹99 Rakhi Gift Pack.
+- Free simple share card; ₹49 Exact Answer Reveal; ₹99 **Digital Rakhi Gift Pack**.
 - One purchase belongs to the battle and unlocks for both.
+- No stakes, wagers, cash prizes, paid entry for a prize, deposits/withdrawals or monetary winnings.
 - Family Court, consent-based Hall of Fame and anonymous family-chain tracking.
 - Anonymous event funnel with referral/UTM preservation.
 - Operator dashboard protected by an admin secret.
@@ -61,4 +66,4 @@ Hindi toggle, broad/city leaderboards, AdSense, full affiliate automation, spons
 
 ## Superseded terminology
 
-Older files may mention “Savage Mode,” “Full Reveal” or all eight answer rows being free. Those are historical. Current public offers are **₹49 Exact Answer Reveal** and **₹99 Rakhi Gift Pack**, with only two free answer teasers.
+Older files may mention “Savage Mode,” “Full Reveal” or all eight answer rows being free. Those are historical. Current public offers are **₹49 Exact Answer Reveal** and **₹99 Digital Rakhi Gift Pack**, with only two free answer teasers.
