@@ -22,18 +22,23 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </section>
 
+    <section class="card info-grievance">
+      <strong>Grievance Officer: Divya Pandey</strong>
+      <span>Use support@bondbop.com or the support form. We aim to acknowledge grievances within 48 hours and resolve them within one month, subject to the information needed to investigate the issue.</span>
+    </section>
+
     <h2>Purchase information</h2>
     <div class="info-links">
-      <a class="card" href="/pricing"><b>Pricing</b><span>Free play, ₹49 Exact Answer Reveal and ₹99 Rakhi Gift Pack.</span><i>View →</i></a>
+      <a class="card" href="/pricing"><b>Pricing</b><span>Free play, ₹49 Exact Answer Reveal and ₹99 Digital Rakhi Gift Pack.</span><i>View →</i></a>
       <a class="card" href="/shipping"><b>Shipping &amp; Digital Delivery</b><span>How paid digital content is delivered and what to do if it does not appear.</span><i>View →</i></a>
-      <a class="card" href="/refund"><b>Cancellation &amp; Refund</b><span>Rules for digital purchases, duplicate charges and failed delivery.</span><i>View →</i></a>
+      <a class="card" href="/refund"><b>Cancellation &amp; Refund</b><span>Rules for digital purchases, duplicate charges, deficient service and failed delivery.</span><i>View →</i></a>
     </div>
 
     <h2>Help &amp; legal</h2>
     <div class="info-links">
       <a class="card" href="/contact"><b>Support</b><span>Submit a support case for technical, payment, delivery or privacy help.</span><i>View →</i></a>
       <a class="card" href="/privacy"><b>Privacy</b><span>What data the game uses, why it is used and how long it is retained.</span><i>View →</i></a>
-      <a class="card" href="/terms"><b>Terms</b><span>Entertainment-use, purchase and acceptable-use terms.</span><i>View →</i></a>
+      <a class="card" href="/terms"><b>Terms</b><span>Entertainment-use, no-wagering, age, purchase and acceptable-use terms.</span><i>View →</i></a>
     </div>
 
     <div class="info-actions">
@@ -53,6 +58,9 @@ import Layout from '../layouts/Layout.astro';
   .info-summary span { margin-bottom: 6px; color: var(--muted); font-size: .72rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
   .info-summary strong { font-size: .94rem; line-height: 1.45; }
   .info-summary a { color: var(--wine); }
+  .info-grievance { margin-top: 14px; display: grid; gap: 6px; }
+  .info-grievance strong { color: var(--wine-dark); }
+  .info-grievance span { color: var(--muted); font-size: .88rem; line-height: 1.5; }
   .info-links { margin-top: 15px; display: grid; gap: 12px; }
   .info-links > a { padding: 20px 22px; display: grid; grid-template-columns: minmax(150px, .7fr) 1fr auto; align-items: center; gap: 18px; color: inherit; text-decoration: none; transition: transform .15s ease, border-color .15s ease; }
   .info-links > a:hover { transform: translateY(-2px); border-color: rgba(125,21,56,.25); }
